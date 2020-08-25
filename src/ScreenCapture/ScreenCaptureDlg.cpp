@@ -1774,13 +1774,15 @@ void CSCDialog::DrawScrawl(HDC hDC, HBITMAP hBitmap)
 	}
 	else if(m_ToolDlg.m_nSelDrawButtonID == IDC_BUTTON_BRUSH)
 	{
-		vector<POINT>::const_iterator iter = m_ptScrawls.begin();
-		POINT pt = (*iter);
-		MoveToEx(hDC, pt.x - m_rtSel.left, pt.y - m_rtSel.top, NULL);
-		for(; iter != m_ptScrawls.end(); iter++)
-		{			
-			pt = (*iter);
-			LineTo(hDC, pt.x - m_rtSel.left, pt.y - m_rtSel.top);
+		if(m_ptScrawls.size() > 0){
+			vector<POINT>::const_iterator iter = m_ptScrawls.begin();
+			POINT pt = (*iter);
+			MoveToEx(hDC, pt.x - m_rtSel.left, pt.y - m_rtSel.top, NULL);
+			for(; iter != m_ptScrawls.end(); iter++)
+			{			
+				pt = (*iter);
+				LineTo(hDC, pt.x - m_rtSel.left, pt.y - m_rtSel.top);
+			}
 		}
 	}	
 
@@ -2557,7 +2559,10 @@ BOOL CSCDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	InitCaptureData();	
 
+#ifdef _DEBUG
+#else
 	::SetWindowPos(m_hDlg, HWND_TOPMOST, 0, 0, m_nXScreen, m_nYScreen, SWP_SHOWWINDOW);	
+#endif
 
 	m_ToolDlg.ShowToolDlg(false);
 
