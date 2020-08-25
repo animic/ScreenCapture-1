@@ -3,3 +3,5 @@
 /src/ScreenCapture/*.user
 /*.suo
 /*.ncb
+/Debug
+/Release
