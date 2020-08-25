@@ -2487,9 +2487,9 @@ void CSCDialog::EnsureScreenCapture()
 	}	
 }
 
-void CSCDialog::ShowScreenCaptureDlg()
+INT_PTR CSCDialog::ShowScreenCaptureDlg()
 {
-	::DialogBox((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_SCREEN_CAPTURE), NULL, DialogProc);
+	return ::DialogBox((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_SCREEN_CAPTURE), NULL, DialogProc);
 }
 
 BOOL CALLBACK CSCDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -10,8 +10,6 @@
 
 #pragma warning (disable: 4786)
 
-#define ULONG_PTR unsigned long
-#include <ComDef.h>
 #include <GdiPlus.h>
 #pragma comment(lib, "Gdiplus.lib")
 using namespace Gdiplus;
@@ -469,7 +467,7 @@ public:
 	virtual ~CSCDialog();
 
 	//展示截屏框
-	void ShowScreenCaptureDlg();	
+	INT_PTR  ShowScreenCaptureDlg();	
 
 	//对话框的处理程序
 	static BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);

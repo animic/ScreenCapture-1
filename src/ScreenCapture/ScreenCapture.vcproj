@@ -73,6 +73,7 @@
 				Name="VCLinkerTool"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				ModuleDefinitionFile="ScreenCapture.def"
 				GenerateDebugInformation="true"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -158,6 +159,7 @@
 				Name="VCLinkerTool"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				ModuleDefinitionFile="ScreenCapture.def"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -212,6 +214,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ScreenCapture.def"
+				>
 			</File>
 			<File
 				RelativePath="ScreenCaptureDlg.cpp"

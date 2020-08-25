@@ -8,3 +8,4 @@
 /src/test/Debug
 /src/test/Release
 /src/test/*.user
+/src/ScreenCapture/*.aps

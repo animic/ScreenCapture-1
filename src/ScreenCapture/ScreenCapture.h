@@ -7,16 +7,12 @@
 
 #ifndef SCREEN_CAPTURE_H
 #define SCREEN_CAPTURE_H
+#include <windows.h>
 
-#include "windows.h"
-
-#define IS_EXPORT
-
-#ifdef IS_EXPORT
-	#define PORT_DIR __declspec(dllexport)
-#else
-	#define PORT_DIR __declspec(dllimport)
+#ifdef __cplusplus
+extern "C"{
 #endif
+
 
 //抓图后用户的操作
 typedef enum _capture_oper
@@ -25,7 +21,6 @@ typedef enum _capture_oper
 	CO_SURE,       //确定抓图
 	CO_SAVEAS,	   //另存为抓图
 	CO_EDIT		   //对抓图进行编辑
-
 }CAPTURE_OPER;
 
 //截图的数据结构
@@ -38,6 +33,11 @@ typedef struct _capture_data
 }CAPTURE_DATA, *PCAPTURE_DATA;
 
 //执行屏幕截图的函数
-PORT_DIR void ExecuteScreenCapture(CAPTURE_DATA* pCaptureData);
+INT_PTR ExecuteScreenCapture(CAPTURE_DATA* pCaptureData);
+
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

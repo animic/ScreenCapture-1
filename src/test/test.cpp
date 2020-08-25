@@ -4,11 +4,17 @@
 #include "stdafx.h"
 
 #include "../ScreenCapture/ScreenCapture.h"
-#pragma comment(lib, "../ScreenCapture/Debug/ScreenCapture.lib")
+
+#ifdef DEBUG
+#pragma comment(lib, "../../Debug/ScreenCapture.lib")
+#else
+#pragma comment(lib, "../../Release/ScreenCapture.lib")
+#endif
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CAPTURE_DATA d;
+	CAPTURE_DATA d = {0};
 	ExecuteScreenCapture(&d);
 	return 0;
 }

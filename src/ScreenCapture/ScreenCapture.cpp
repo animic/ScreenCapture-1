@@ -22,12 +22,12 @@ BOOL APIENTRY DllMain( HANDLE hModule,
     return TRUE;
 }
 
-PORT_DIR void ExecuteScreenCapture(CAPTURE_DATA* pCaptureData)
+INT_PTR ExecuteScreenCapture(CAPTURE_DATA* pCaptureData)
 {
 	if(!pCaptureData)
-		return;
+		return -1;
 
 	g_pCaptureData = pCaptureData;
 
-	g_scDialog.ShowScreenCaptureDlg();
+	return g_scDialog.ShowScreenCaptureDlg();
 }
