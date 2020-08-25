@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include <atlbase.h>
+#include <atltrace.h>
 
 #include "../ScreenCapture/ScreenCapture.h"
 
@@ -14,8 +16,8 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CAPTURE_DATA d = {0};
-	ExecuteScreenCapture(&d);
+	int ret = ExecuteScreenCapture1();
+	ATLTRACE("%d\n", ret);
 	return 0;
 }
 

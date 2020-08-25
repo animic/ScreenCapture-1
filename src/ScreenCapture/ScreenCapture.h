@@ -34,6 +34,7 @@ typedef struct _capture_data
 
 //Ö´ÐÐÆÁÄ»½ØÍ¼µÄº¯Êý
 INT_PTR ExecuteScreenCapture(CAPTURE_DATA* pCaptureData);
+INT_PTR ExecuteScreenCapture1();
 
 
 #ifdef __cplusplus

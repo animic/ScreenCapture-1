@@ -31,3 +31,8 @@ INT_PTR ExecuteScreenCapture(CAPTURE_DATA* pCaptureData)
 
 	return g_scDialog.ShowScreenCaptureDlg();
 }
+
+INT_PTR ExecuteScreenCapture1()
+{
+	return g_scDialog.ShowScreenCaptureDlg();
+}

@@ -1093,7 +1093,7 @@ BOOL CCustomDialog::DialogOnCommand(WPARAM wParam, LPARAM lParam)
 	int ID = LOWORD(wParam);
 	if(ID == IDCANCEL)
 	{
-		::EndDialog(m_hDlg, 0);
+		::EndDialog(m_hDlg, CO_CANCEL);
 	}
 
 	switch(ID)
@@ -1432,7 +1432,7 @@ BOOL CToolDialog::DialogOnCommand(WPARAM wParam, LPARAM lParam)
 	int ID = LOWORD(wParam);
 	if(ID == IDCANCEL)
 	{
-		::EndDialog(m_hDlg, 0);
+		::EndDialog(m_hDlg, CO_CANCEL);
 	}
 	if(m_nSelDrawButtonID == IDC_BUTTON_WORD && m_nSelDrawButtonID != ID)
 	{
@@ -2505,18 +2505,22 @@ void CSCDialog::SaveAsCaptureBmp()
 		{
 			ConvertImageFomat(filename, image_format);
 
-			strcpy(g_pCaptureData->filename, filename);
-			g_pCaptureData->capture_oper = CO_SAVEAS;
+			if(g_pCaptureData){
+				strcpy(g_pCaptureData->filename, filename);
+				g_pCaptureData->capture_oper = CO_SAVEAS;
+			}
 
-			::EndDialog(m_hDlg, 0);	
+			::EndDialog(m_hDlg, CO_SAVEAS);	
 		}		
 	}
 }
 
 void CSCDialog::CancelScreenCapture()
 {
-	g_pCaptureData->capture_oper = CO_CANCEL;	
-	::EndDialog(m_hDlg, 0);
+	if( g_pCaptureData) {
+		g_pCaptureData->capture_oper = CO_CANCEL;	
+	}
+	::EndDialog(m_hDlg, CO_CANCEL);
 }
 
 void CSCDialog::EnsureScreenCapture()
@@ -2529,8 +2533,10 @@ void CSCDialog::EnsureScreenCapture()
 
 	SaveBitmapToClipBoard(m_hBitmap, m_rtSel.left, m_rtSel.top, m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top);	
 
-	g_pCaptureData->capture_oper = CO_SURE;
-	::EndDialog(m_hDlg, 0);	
+	if(g_pCaptureData){
+		g_pCaptureData->capture_oper = CO_SURE;
+	}
+	::EndDialog(m_hDlg, CO_SURE);	
 
 }
 
@@ -2623,7 +2629,7 @@ BOOL CSCDialog::DialogOnCommand(WPARAM wParam, LPARAM lParam)
 	int code = HIWORD(wParam);
 	if(ID == IDCANCEL)
 	{
-		::EndDialog(m_hDlg, 0);
+		::EndDialog(m_hDlg, CO_CANCEL);
 	}
 	if(ID == IDC_EDIT_WORD)
 	{		

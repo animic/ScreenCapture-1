@@ -1,3 +1,4 @@
 LIBRARY	"ScreenCapture"
 EXPORTS 
  ExecuteScreenCapture
+ ExecuteScreenCapture1
