@@ -1,4 +1,5 @@
 ﻿#include <Windows.h>
+#include <atlbase.h>
 #include "ScreenCapture.h"
 #include "ScreenCaptureDlg.h"
 #include "resource.h"
@@ -481,9 +482,13 @@ HWND CMyButton::CreateButton(UINT idCtl, HWND hParent, DWORD dwStyle)
 		ToWndList(this);
 	}
 
-	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWLP_WNDPROC, (LONG)WndProc);
+
+	m_oldWndProc = (WNDPROC)::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)&WndProc);
 	if(!m_oldWndProc)
 	{
+		ERROR_SUCCESS;
+		DWORD dwRet = GetLastError();
+		ATLTRACE("%d\n", dwRet);
 		//ErrorBox("SetWindowLong failed");
 	}
 
@@ -754,7 +759,7 @@ HWND CMyEdit::CreateEdit(UINT idCtl, HWND hParent, DWORD dwStyle)
 		ToWndList(this);
 	}
 
-	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWLP_WNDPROC, (LONG)WndProc);
+	m_oldWndProc = (WNDPROC)::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)&WndProc);
 	if(!m_oldWndProc)
 	{
 

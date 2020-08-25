@@ -7,10 +7,22 @@
 
 #include "../ScreenCapture/ScreenCapture.h"
 
+#ifdef _WIN64
+
+#ifdef DEBUG
+#pragma comment(lib, "../../x64/Debug/ScreenCapture.lib")
+#else
+#pragma comment(lib, "../../x64/Release/ScreenCapture.lib")
+#endif
+
+#else
+
 #ifdef DEBUG
 #pragma comment(lib, "../../Debug/ScreenCapture.lib")
 #else
 #pragma comment(lib, "../../Release/ScreenCapture.lib")
+#endif
+
 #endif
 
 
