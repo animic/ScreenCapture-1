@@ -5,3 +5,6 @@
 /*.ncb
 /Debug
 /Release
+/src/test/Debug
+/src/test/Release
+/src/test/*.user
