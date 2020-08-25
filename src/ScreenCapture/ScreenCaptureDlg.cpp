@@ -2465,9 +2465,10 @@ void CSCDialog::EnsureScreenCapture()
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
 	char title[MAX_PATH] = {0};	
-	sprintf(title, "\\%d-%d-%d-%d-%d-%d.jpg", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-	strcpy(g_pCaptureData->filename, g_pCaptureData->save_dir), strcat(g_pCaptureData->filename, title);
-
+	sprintf(title, "%d-%d-%d-%d-%d-%d.jpg", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+	strcpy(g_pCaptureData->filename, g_pCaptureData->save_dir);
+	strcat(g_pCaptureData->filename, title);
+	
 	RECT rtSrc;
 	rtSrc.left = rtSrc.top = 0;
 	rtSrc.right = m_rtSel.right - m_rtSel.left;
