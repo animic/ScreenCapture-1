@@ -1,4 +1,5 @@
-﻿#include "ScreenCapture.h"
+﻿#include <Windows.h>
+#include "ScreenCapture.h"
 #include "ScreenCaptureDlg.h"
 #include "resource.h"
 
@@ -480,7 +481,7 @@ HWND CMyButton::CreateButton(UINT idCtl, HWND hParent, DWORD dwStyle)
 		ToWndList(this);
 	}
 
-	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWL_WNDPROC, (LONG)WndProc);
+	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWLP_WNDPROC, (LONG)WndProc);
 	if(!m_oldWndProc)
 	{
 		//ErrorBox("SetWindowLong failed");
@@ -753,7 +754,7 @@ HWND CMyEdit::CreateEdit(UINT idCtl, HWND hParent, DWORD dwStyle)
 		ToWndList(this);
 	}
 
-	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWL_WNDPROC, (LONG)WndProc);
+	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWLP_WNDPROC, (LONG)WndProc);
 	if(!m_oldWndProc)
 	{
 
@@ -926,7 +927,7 @@ void CCustomDialog::ShowCustomDlg(bool bShow, UINT nButtonID)
 {
 	if(!m_hDlg)
 	{
-		m_hDlg = ::CreateDialogParam((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_CUSTOM), g_scDialog.m_hDlg, DialogProc, (LPARAM)this);	
+		m_hDlg = ::CreateDialogParam((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_CUSTOM), g_scDialog.m_hDlg, &DialogProc, (LPARAM)this);	
 	}	
 
 	if(bShow)
@@ -951,7 +952,7 @@ void CCustomDialog::ShowCustomDlg(bool bShow, UINT nButtonID)
 	UpdateControls();
 }
 
-BOOL CALLBACK CCustomDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR WINAPI CCustomDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {	
 	static CCustomDialog *pCustomDlg = NULL;
 	if(uMsg == WM_INITDIALOG)
@@ -1226,7 +1227,7 @@ void CToolDialog::ShowToolDlg(bool bShow)
 	m_bShow = bShow;
 }
 
-BOOL CALLBACK CToolDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR WINAPI CToolDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {	
 	static CToolDialog *pToolDlg = NULL;
 	if(uMsg == WM_INITDIALOG)
@@ -2382,7 +2383,7 @@ HBITMAP CSCDialog::CopyBitmap(HBITMAP hSrcBitmap, HBITMAP hDstBitmap, const RECT
 	return hDstBitmap;	
 }
 
-UINT CALLBACK OFNHookProc(
+UINT_PTR CALLBACK OFNHookProc(
 						  HWND hdlg,      // handle to child dialog window
 						  UINT uiMsg,     // message identifier
 						  WPARAM wParam,  // message parameter
@@ -2542,10 +2543,10 @@ void CSCDialog::EnsureScreenCapture()
 
 INT_PTR CSCDialog::ShowScreenCaptureDlg()
 {
-	return ::DialogBox((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_SCREEN_CAPTURE), NULL, DialogProc);
+	return ::DialogBox((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_SCREEN_CAPTURE), NULL, &DialogProc);
 }
 
-BOOL CALLBACK CSCDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR WINAPI CSCDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {	
 	switch(uMsg)
 	{

@@ -230,7 +230,7 @@ public:
 	void ShowCustomDlg(bool bShow = true, UINT nButtonID = 0);	
 
 	//工具框的处理程序
-	static BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR WINAPI DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	
 	//对话框初始化处理
 	BOOL DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam);
@@ -271,7 +271,7 @@ public:
 	void ShowToolDlg(bool bShow = true);	
 	
 	//工具框的处理程序
-	static BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR WINAPI DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	
 	//对话框初始化处理
 	BOOL DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam);
@@ -470,7 +470,7 @@ public:
 	INT_PTR  ShowScreenCaptureDlg();	
 
 	//对话框的处理程序
-	static BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR WINAPI DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	//对话框初始化处理
 	BOOL DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam);

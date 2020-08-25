@@ -9,3 +9,7 @@
 /src/test/Release
 /src/test/*.user
 /src/ScreenCapture/*.aps
+/src/test/x64/Debug
+/src/ScreenCapture/x64/Release
+/src/ScreenCapture/x64/Debug
+/x64
