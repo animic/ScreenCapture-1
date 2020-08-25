@@ -28,7 +28,7 @@ extern CAPTURE_DATA* g_pCaptureData;
 extern CSCDialog g_scDialog;
 extern HANDLE g_hModule;
 
- //三种自定义线宽
+//三种自定义线宽
 int g_custom_line_width[3] = {1, 2, 4};
 
 //10种自定义字体大小
@@ -49,19 +49,19 @@ void WriteLog(char *string, ...)
 	::GetCurrentDirectory(MAX_PATH, curDir);
 	strcpy(filename, curDir), strcat(filename, "\\log.txt");
 	FILE *file = fopen(filename, "a");	
-	
+
 	if (!string || !file)
 		return;
-	
+
 	va_list arglist;
-	
+
 	va_start(arglist,string);
 	vsprintf(buffer,string,arglist); 
 	va_end(arglist);
-	
+
 	fprintf(file,buffer);	
 	fflush(file);
-	
+
 	fclose(file);
 }
 
@@ -110,14 +110,14 @@ bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char
 	::GetObject(hBitmap, sizeof(BITMAP), &bitmapInfo);
 	if(bitmapInfo.bmWidth <=0 || bitmapInfo.bmHeight <=0)
 		return false;
-	
+
 	if(x<0) x = 0;
 	if(y<0) y = 0;	
 	if(x+width > bitmapInfo.bmWidth)
 		width = bitmapInfo.bmWidth-x;
 	if(y+height > bitmapInfo.bmHeight)
 		height = bitmapInfo.bmHeight-y;
-	
+
 	HDC hDC = ::GetDC(NULL);
 	HDC hMemDCSrc = ::CreateCompatibleDC(hDC);	
 	HBITMAP hOldBitmap = (HBITMAP)::SelectObject(hMemDCSrc, hBitmap);
@@ -125,12 +125,12 @@ bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char
 	HDC hMemDCCut = ::CreateCompatibleDC(hDC);
 	HBITMAP hBitmapCut = ::CreateCompatibleBitmap(hDC, width, height);
 	HBITMAP hOldBitmapCut = (HBITMAP)::SelectObject(hMemDCCut, hBitmapCut);
-	
+
 	::BitBlt(hMemDCCut, 0, 0, width, height, hMemDCSrc, x, y, SRCCOPY);
 
 	::SelectObject(hMemDCSrc, hOldBitmap);
 	::DeleteDC(hMemDCSrc);
-	
+
 	BITMAPINFO BmpInfo;
 	ZeroMemory(&BmpInfo, sizeof(BmpInfo));
 	BmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -139,26 +139,26 @@ bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char
 	BmpInfo.bmiHeader.biPlanes = 1;
 	BmpInfo.bmiHeader.biBitCount = 32;
 	BmpInfo.bmiHeader.biCompression = BI_RGB;	
-	
+
 	int OffSize = sizeof(BITMAPFILEHEADER)+BmpInfo.bmiHeader.biSize;
 	int BmpSize = BmpInfo.bmiHeader.biWidth*BmpInfo.bmiHeader.biHeight*4;
 	int FileSize = OffSize+BmpSize;
-	
+
 	BITMAPFILEHEADER FileHeader;
 	ZeroMemory(&FileHeader, sizeof(FileHeader));
 	FileHeader.bfSize = FileSize;
 	FileHeader.bfType = 'B'+('M'<<8);
 	FileHeader.bfOffBits = OffSize;
-	
+
 	PVOID pBmpData;
 	pBmpData = ::HeapAlloc(GetProcessHeap(), HEAP_NO_SERIALIZE, BmpSize);
 	ZeroMemory(pBmpData, BmpSize);	
-	
+
 	if(::GetDIBits(hMemDCCut, hBitmapCut, 0, BmpInfo.bmiHeader.biHeight, pBmpData, &BmpInfo, DIB_RGB_COLORS) == 0)
 	{
 		return false;
 	}
-	
+
 	HANDLE hFile;
 	DWORD dwWriten;
 	hFile = ::CreateFile(
@@ -182,7 +182,7 @@ bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char
 		return false;
 	}
 	::CloseHandle(hFile);
-	
+
 	::HeapFree(GetProcessHeap(), 0, pBmpData);
 
 	if(bSaveCB)
@@ -194,10 +194,67 @@ bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char
 			::CloseClipboard();
 		}
 	}
-	
+
 	::SelectObject(hMemDCCut, hOldBitmapCut);
 	::DeleteObject(hBitmapCut);
 	::DeleteDC(hMemDCCut);
+
+	::ReleaseDC(::GetDesktopWindow(), hDC);
+
+	return true;
+}
+
+//把位图句柄写入到剪贴板
+bool SaveBitmapToClipBoard(HBITMAP hBitmap, int x, int y, int width, int height)
+{
+	if(!hBitmap ){
+		return false;
+	}
+
+	if(width<=0 || height<=0){
+		return false;
+	}
+
+	BITMAP bitmapInfo;
+	::GetObject(hBitmap, sizeof(BITMAP), &bitmapInfo);
+	if(bitmapInfo.bmWidth <=0 || bitmapInfo.bmHeight <=0){
+		return false;
+	}
+
+	if( x < 0 ){ x = 0; }
+	if( y < 0 ){ y = 0;	}
+	if( (x + width) > bitmapInfo.bmWidth){ width = bitmapInfo.bmWidth - x; }
+	if( (y + height) > bitmapInfo.bmHeight){ height = bitmapInfo.bmHeight - y; }
+
+	HDC hDC = ::GetDC(NULL);
+
+	{
+
+		HDC hMemDCSrc = ::CreateCompatibleDC(hDC);	
+		HDC hMemDCCut = ::CreateCompatibleDC(hDC);
+
+		HBITMAP hBitmapCut = ::CreateCompatibleBitmap(hDC, width, height);
+
+		HBITMAP hOldBitmap = (HBITMAP)::SelectObject(hMemDCSrc, hBitmap);
+		HBITMAP hOldBitmapCut = (HBITMAP)::SelectObject(hMemDCCut, hBitmapCut);
+
+		::BitBlt(hMemDCCut, 0, 0, width, height, hMemDCSrc, x, y, SRCCOPY);
+
+		if(::OpenClipboard(NULL)) 
+		{			
+			::EmptyClipboard();			
+			::SetClipboardData(CF_BITMAP, hBitmapCut);			
+			::CloseClipboard();
+		}
+
+		::SelectObject(hMemDCCut, hOldBitmapCut);
+		::SelectObject(hMemDCSrc, hOldBitmap);
+
+		::DeleteObject(hBitmapCut);
+
+		::DeleteDC(hMemDCCut);
+		::DeleteDC(hMemDCSrc);
+	}
 
 	::ReleaseDC(::GetDesktopWindow(), hDC);
 
@@ -209,26 +266,26 @@ Gdiplus::Image* LoadPNGFromRes(UINT pResourceID, HMODULE hInstance, LPCTSTR pRes
 {
 	HBITMAP hBitmap = NULL;
 	LPCTSTR pResourceName = MAKEINTRESOURCE(pResourceID);
-	
+
 	HRSRC hResource = ::FindResource(hInstance, pResourceName, pResourceType);
 	if(!hResource)
 		return NULL;
-	
+
 	DWORD dwResourceSize = ::SizeofResource(hInstance, hResource);
 	if(!dwResourceSize)
 		return NULL;
-	
+
 	const void* pResourceData = ::LockResource(::LoadResource(hInstance, hResource));
 	if(!pResourceData)
 		return NULL;
-	
+
 	HGLOBAL hResourceBuffer = ::GlobalAlloc(GMEM_MOVEABLE, dwResourceSize);
 	if(!hResourceBuffer)
 	{
 		::GlobalFree(hResourceBuffer);
 		return NULL;
 	}
-	
+
 	void* pResourceBuffer = ::GlobalLock(hResourceBuffer);
 	if(!pResourceBuffer)
 	{
@@ -236,10 +293,10 @@ Gdiplus::Image* LoadPNGFromRes(UINT pResourceID, HMODULE hInstance, LPCTSTR pRes
 		::GlobalFree(hResourceBuffer);
 		return NULL;
 	}
-	
+
 	::CopyMemory(pResourceBuffer, pResourceData, dwResourceSize);
 	IStream* pIStream = NULL;
-	
+
 	if(::CreateStreamOnHGlobal(hResourceBuffer, FALSE, &pIStream)==S_OK)
 	{
 		Gdiplus::Image *pImage = Gdiplus::Image::FromStream(pIStream);
@@ -249,16 +306,16 @@ Gdiplus::Image* LoadPNGFromRes(UINT pResourceID, HMODULE hInstance, LPCTSTR pRes
 
 		if(pImage == NULL)
 			return NULL;	
-		
+
 		Gdiplus::Status result = pImage->GetLastStatus();
 		if(result==Gdiplus::Ok)
 			return pImage;
-		
+
 		delete pImage;
 	}
 	::GlobalUnlock(hResourceBuffer);
 	::GlobalFree(hResourceBuffer);
-	
+
 	return NULL;
 }
 
@@ -266,22 +323,22 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {    
 	UINT  num = 0;          // number of image encoders     
 	UINT  size = 0;         // size of the image encoder array in bytes     
-	
+
 	ImageCodecInfo* pImageCodecInfo = NULL;    
-	
+
 	//2.获取GDI+支持的图像格式编码器种类数以及ImageCodecInfo数组的存放大小     
 	GetImageEncodersSize(&num, &size);    
 	if(size == 0)    
 		return -1;  // Failure     
-	
+
 	//3.为ImageCodecInfo数组分配足额空间     
 	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));    
 	if(pImageCodecInfo == NULL)    
 		return -1;  // Failure     
-	
+
 	//4.获取所有的图像编码器信息     
 	GetImageEncoders(num, size, pImageCodecInfo);    
-	
+
 	//5.查找符合的图像编码器的Clsid     
 	for(UINT j = 0; j < num; ++j)    
 	{    
@@ -292,7 +349,7 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 			return j;  // Success     
 		}        
 	}    
-	
+
 	//6.释放步骤3分配的内存     
 	free(pImageCodecInfo);    
 	return -1;  // Failure     
@@ -303,7 +360,7 @@ void ConvertImageFomat(char *filename, IMAGE_FORMAT image_format)
 	wchar_t capPath[MAX_PATH] = {0};
 	int len = MultiByteToWideChar(CP_ACP, 0, filename, -1, NULL, 0); 
 	MultiByteToWideChar (CP_ACP, 0, filename, -1, capPath, len);
-	
+
 	CLSID   encoderClsid;    
 	Status  stat;    	
 	Image*   image = new Image(capPath);  
@@ -311,13 +368,13 @@ void ConvertImageFomat(char *filename, IMAGE_FORMAT image_format)
 	Gdiplus::Graphics gr(bitmap);
 	Gdiplus::Rect desRect(0, 0, image->GetWidth(), image->GetHeight());
 	gr.DrawImage(image, desRect, 0, 0, image->GetWidth(), image->GetHeight(), Gdiplus::UnitPixel);	
-	
-    if(image)
+
+	if(image)
 	{
 		delete image;
 		image = NULL;
 	}
-	
+
 	switch(image_format)
 	{
 	case IF_BMP:
@@ -334,7 +391,7 @@ void ConvertImageFomat(char *filename, IMAGE_FORMAT image_format)
 		break;
 	}	  	
 	stat = bitmap->Save(capPath, &encoderClsid, NULL); 
-	
+
 	if(bitmap)
 	{
 		delete bitmap;
@@ -351,7 +408,7 @@ CWnd::CWnd()
 
 CWnd::~CWnd()
 {
-	
+
 }
 
 void CWnd::ToWndList(CWnd* pWnd)
@@ -394,7 +451,7 @@ CMyButton::CMyButton()
 
 CMyButton::~CMyButton()
 {
-	
+
 }
 
 HWND CMyButton::CreateButton(UINT idCtl, HWND hParent, DWORD dwStyle)
@@ -422,13 +479,13 @@ HWND CMyButton::CreateButton(UINT idCtl, HWND hParent, DWORD dwStyle)
 	{
 		ToWndList(this);
 	}
-	
+
 	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWL_WNDPROC, (LONG)WndProc);
 	if(!m_oldWndProc)
 	{
 		//ErrorBox("SetWindowLong failed");
 	}
-	
+
 	::SetTimer(m_hWnd, TIMER_ID_MOUSE_LISTEN, 100, NULL);
 
 	::ShowWindow(m_hWnd, SW_SHOW);
@@ -438,7 +495,7 @@ HWND CMyButton::CreateButton(UINT idCtl, HWND hParent, DWORD dwStyle)
 }
 
 void CMyButton::SetPNGBitmaps(Image* pPngImageNormal, Image* pPngImageFocus, Image* pPngImageDown, 
-		Image* pPngImageDisable)
+							  Image* pPngImageDisable)
 {
 	if(m_pBkImage[0])
 	{
@@ -502,7 +559,7 @@ LRESULT CALLBACK CMyButton::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if(!bCut)
 		return ::CallWindowProc(m_oldWndProc, m_hWnd, uMsg, wParam, lParam);
-	
+
 	return 1;
 }
 
@@ -541,13 +598,13 @@ BOOL CMyButton::OnPaint(WPARAM wParam, LPARAM lParam)
 			graphics.DrawImage(pImage, 0, 0, width, height);		
 		}		
 	}
-	
- 	::BitBlt(hDC, 0, 0, rtClient.right - rtClient.left, rtClient.bottom - rtClient.top, hMemDC, 0, 0, SRCCOPY);
- 
+
+	::BitBlt(hDC, 0, 0, rtClient.right - rtClient.left, rtClient.bottom - rtClient.top, hMemDC, 0, 0, SRCCOPY);
+
 	::SelectObject(hMemDC, hOldBitmap);
 	::DeleteObject(hBitmap);	
 
- 	::DeleteObject(hMemDC);
+	::DeleteObject(hMemDC);
 
 	::EndPaint(m_hWnd, &ps);
 	return TRUE;
@@ -569,7 +626,7 @@ BOOL CMyButton::OnLButtonUp(WPARAM wParam, LPARAM lParam)
 {
 	if(m_buttonStyle == BS_RADIO && m_buttonState == BS_DOWN)
 	{
-		
+
 	}
 	else
 	{
@@ -583,7 +640,7 @@ BOOL CMyButton::OnMouseHover(WPARAM wParam, LPARAM lParam)
 {
 	if(m_buttonStyle == BS_RADIO && m_buttonState == BS_DOWN)
 	{
-		
+
 	}
 	else
 	{
@@ -597,7 +654,7 @@ BOOL CMyButton::OnMouseLeave(WPARAM wParam, LPARAM lParam)
 {	
 	if(m_buttonStyle == BS_RADIO && m_buttonState == BS_DOWN)
 	{
-		
+
 	}
 	else
 	{
@@ -663,7 +720,7 @@ CMyEdit::CMyEdit()
 
 CMyEdit::~CMyEdit()
 {
-	
+
 }
 
 void CMyEdit::SetFont(HFONT hFont)
@@ -695,16 +752,16 @@ HWND CMyEdit::CreateEdit(UINT idCtl, HWND hParent, DWORD dwStyle)
 	{
 		ToWndList(this);
 	}
-	
+
 	m_oldWndProc = (WNDPROC)::SetWindowLong(m_hWnd, GWL_WNDPROC, (LONG)WndProc);
 	if(!m_oldWndProc)
 	{
-		
+
 	}		
-	
+
 	::ShowWindow(m_hWnd, SW_SHOW);
 	::UpdateWindow(m_hWnd);	
-	
+
 	return m_hWnd;
 }
 
@@ -730,10 +787,10 @@ LRESULT CALLBACK CMyEdit::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-	
+
 	if(!bCut)
 		return ::CallWindowProc(m_oldWndProc, m_hWnd, uMsg, wParam, lParam);
-	
+
 	return 1;
 }
 
@@ -771,14 +828,14 @@ CCustomDialog::CCustomDialog()
 
 CCustomDialog::~CCustomDialog()
 {
-	
+
 }
 
 BOOL CCustomDialog::DrawColorButton(CMyButton *pButton, HDC hDC, RECT *pRect)
 {
 	if(!pButton || !hDC || !pRect)
 		return FALSE;
-	
+
 	HBRUSH hBrush = ::CreateSolidBrush(g_custom_color[pButton->GetButtonID()-IDC_BUTTON_COLOR_BASE]);	
 
 	if(pButton->GetButtonState() == BS_NORMAL)
@@ -800,7 +857,7 @@ BOOL CCustomDialog::DrawColorButton(CMyButton *pButton, HDC hDC, RECT *pRect)
 		rtTemp.right = pRect->right - 2, rtTemp.bottom = pRect->bottom - 2;
 		::FillRect(hDC, &rtTemp, hBrush);
 	}	
-	
+
 	::DeleteObject(hBrush);
 	return TRUE;
 }
@@ -839,7 +896,7 @@ void CCustomDialog::UpdateControls()
 		}
 		UpdateButtonState();
 	}
-	
+
 	RECT rtColor;
 	::GetWindowRect(::GetDlgItem(m_hDlg, IDC_STATIC_COLOR), &rtColor);
 	::ScreenToClient(m_hDlg, (LPPOINT)&rtColor);
@@ -871,7 +928,7 @@ void CCustomDialog::ShowCustomDlg(bool bShow, UINT nButtonID)
 	{
 		m_hDlg = ::CreateDialogParam((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDD_DIALOG_CUSTOM), g_scDialog.m_hDlg, DialogProc, (LPARAM)this);	
 	}	
-	
+
 	if(bShow)
 	{
 		::ShowWindow(m_hDlg, SW_SHOW);		
@@ -945,14 +1002,14 @@ BOOL CCustomDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 #define CUSTOM_DIALOG_CX  5*CUSTOM_DIALOG_MARGIN+3*LINE_SIZE_BUTTON_WIDTH+2*SIZE_BUTTON_GAP+SEPARATION_LINE_WIDTH+ COLOR_STATIC_WIDTH + 8*COLOR_BUTTON_WIDTH+7*COLOR_BUTTON_GAP
 
 	m_hDlg = hWnd;
-	
+
 	::SetWindowPos(m_hDlg, HWND_TOP, 0, 0, CUSTOM_DIALOG_CX, CUSTOM_DIALOG_CY, SWP_SHOWWINDOW | SWP_NOMOVE);
 
 	//创建按钮
 	m_buttonWidth[0].CreateButton(IDC_BUTTON_SIZE_SMA, this->m_hDlg);
 	m_buttonWidth[1].CreateButton(IDC_BUTTON_SIZE_MID, this->m_hDlg);
 	m_buttonWidth[2].CreateButton(IDC_BUTTON_SIZE_BIG, this->m_hDlg);
-	
+
 	for(int i = 0; i< 16; i++)
 	{
 		m_buttonColor[i].CreateButton(IDC_BUTTON_COLOR_BASE + i, this->m_hDlg);
@@ -1038,7 +1095,7 @@ BOOL CCustomDialog::DialogOnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		::EndDialog(m_hDlg, 0);
 	}
-	
+
 	switch(ID)
 	{
 	case IDC_BUTTON_SIZE_SMA:				
@@ -1053,7 +1110,7 @@ BOOL CCustomDialog::DialogOnCommand(WPARAM wParam, LPARAM lParam)
 					m_customInfo[m_nSelButtonID-IDC_BUTTON_RECT].size.line_width = g_custom_line_width[1];
 				else if(ID == IDC_BUTTON_SIZE_BIG)
 					m_customInfo[m_nSelButtonID-IDC_BUTTON_RECT].size.line_width = g_custom_line_width[2];
-				
+
 				m_nSelSizeButtonID = ID;
 				UpdateButtonState();
 				::PostMessage(::GetParent(m_hDlg), WM_MSG_FROM_CUSTOM, ID, 0);
@@ -1094,13 +1151,13 @@ BOOL CCustomDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 {
 	RECT rtClient;
 	GetClientRect(m_hDlg, &rtClient);
-	
+
 	PAINTSTRUCT ps;
 	HDC hDC = ::BeginPaint(m_hDlg, &ps);	
-	
+
 	HBRUSH hBrush = ::CreateSolidBrush(TOOL_BK_COLOR);
 	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
-	
+
 	::FillRect(hDC, &rtClient, hBrush);
 
 	//绘制分割线
@@ -1122,7 +1179,7 @@ BOOL CCustomDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 
 	::SelectObject(hDC, hOldPen);
 	::DeleteObject(hGrayPen);
-	
+
 	::SelectObject(hDC, hOldBrush);
 	::DeleteObject(hBrush);
 	::EndPaint(m_hDlg, &ps);	
@@ -1148,7 +1205,7 @@ CToolDialog::CToolDialog()
 
 CToolDialog::~CToolDialog()
 {
-	
+
 }
 
 void CToolDialog::ShowToolDlg(bool bShow)
@@ -1240,7 +1297,7 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	m_hDlg = hWnd;
 
 	//调整工具栏对话框的位置
- 	::SetWindowPos(m_hDlg, HWND_TOP, 0, 0, TOOL_DLG_CX, TOOL_DLG_CY, SWP_SHOWWINDOW);	
+	::SetWindowPos(m_hDlg, HWND_TOP, 0, 0, TOOL_DLG_CX, TOOL_DLG_CY, SWP_SHOWWINDOW);	
 
 	//创建保存、取消、确定按钮	
 	m_btRect.CreateButton(IDC_BUTTON_RECT, this->m_hDlg);
@@ -1256,7 +1313,7 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	//调整按钮的位置
 	RECT rtClient;
 	::GetClientRect(m_hDlg, &rtClient);
-	
+
 	RECT rtRect, rtEllipse, rtArrow, rtBrush, rtWord, rtBack, rtSave, rtCancel, rtOk;
 
 	rtRect.left = rtClient.left + TOOL_DLG_GAP, rtRect.right = rtRect.left + TOOL_DLG_BUTTON_RECT_CX;
@@ -1347,12 +1404,12 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 		LoadPNGFromRes(IDR_PNG_CANCEL_HOVER, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_CANCEL_DOWN, (HINSTANCE)g_hModule, "PNG")
 		);	
-	
+
 	m_btOk.SetPNGBitmaps(LoadPNGFromRes(IDR_PNG_OK_NORMAL, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_OK_HOVER, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_OK_DOWN, (HINSTANCE)g_hModule, "PNG")
 		);
-	
+
 
 	//设置按钮样式
 	m_btRect.SetButtonStyle(BS_RADIO);
@@ -1533,7 +1590,7 @@ void CSCDialog::InitCaptureData()
 
 	memset(&m_rtScrawl, 0, sizeof(RECT));
 	memset(&m_rtWord, 0, sizeof(RECT));
-	
+
 	if(m_hCursor)
 		::DestroyCursor(m_hCursor);
 	m_hCursor = ::LoadCursor((HINSTANCE)g_hModule, MAKEINTRESOURCE(IDC_CURSOR_SC_ARROW));
@@ -1547,7 +1604,7 @@ void CSCDialog::InitCaptureData()
 	m_nYScreen = ::GetSystemMetrics(SM_CYSCREEN);
 
 	m_nWordCount = 0;
-	
+
 	m_rtScreenShow.right = m_nXScreen, m_rtScreenShow.bottom = m_nYScreen;
 
 	//在窗体展现之前进行屏幕截图
@@ -1587,11 +1644,11 @@ HBITMAP CSCDialog::PrintScreenToBitmap(int x, int y, int width, int height)
 	HDC hMemDC = ::CreateCompatibleDC(hScreenDC);
 	HBITMAP hBitmap = ::CreateCompatibleBitmap(hScreenDC, width, height);
 	HBITMAP hOldBitmap = (HBITMAP)::SelectObject(hMemDC, hBitmap);
-	
+
 	::BitBlt(hMemDC, 0, 0, width, height, hScreenDC, x, y, SRCCOPY);	
-	
+
 	hBitmap = (HBITMAP)::SelectObject(hMemDC, hOldBitmap);
-	
+
 	::DeleteDC(hMemDC);
 	::DeleteDC(hScreenDC);
 
@@ -1626,7 +1683,7 @@ BOOL CALLBACK CSCDialog::EnumWindowsProc(HWND hwnd, LPARAM lParam)
 		::GetWindowPlacement(hwnd, &wp);
 		if(wp.showCmd == SW_HIDE || wp.showCmd == SW_MINIMIZE || wp.showCmd == SW_SHOWMINIMIZED)
 			return TRUE;
-		
+
 		//过滤掉窗体矩形不合法的窗体
 		RECT rtWindow;
 		::GetWindowRect(hwnd, &rtWindow);		
@@ -1654,7 +1711,7 @@ void CSCDialog::UpdateTipRect()
 
 	//由于鼠标指针存在导致的附加的偏移
 	const int widthCur = 8, heightCur = 32;
-	
+
 	m_rtTip.left = ptCursor.x + widthCur, m_rtTip.top = ptCursor.y + heightCur;
 	m_rtTip.right = m_rtTip.left + widthTip, m_rtTip.bottom = m_rtTip.top + heightTip;
 	if(m_rtTip.right > m_nXScreen)
@@ -1673,7 +1730,7 @@ void CSCDialog::UpdateToolWndPos()
 {
 	RECT rtWindow;
 	::GetWindowRect(m_ToolDlg.m_hDlg, &rtWindow);
-	
+
 	int right = m_rtSel.right;
 	int left = right - (rtWindow.right - rtWindow.left);
 	if(left<0)
@@ -1685,7 +1742,7 @@ void CSCDialog::UpdateToolWndPos()
 	}
 	if(top<0)
 		top = 0;
-	
+
 	::SetWindowPos(m_ToolDlg.m_hDlg, HWND_TOP, left, top, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE);	
 }
 
@@ -1693,7 +1750,7 @@ void CSCDialog::DrawScrawl(HDC hDC, HBITMAP hBitmap)
 {
 	if(!m_ToolDlg.m_bEdit)
 		return ;
-	
+
 	int cus_line_width = m_ToolDlg.m_CustomDlg.m_customInfo[m_ToolDlg.m_CustomDlg.m_nSelButtonID-IDC_BUTTON_RECT].size.line_width;
 	int cus_font_size = m_ToolDlg.m_CustomDlg.m_customInfo[m_ToolDlg.m_CustomDlg.m_nSelButtonID-IDC_BUTTON_RECT].size.font_size;
 	COLORREF cus_color = m_ToolDlg.m_CustomDlg.m_customInfo[m_ToolDlg.m_CustomDlg.m_nSelButtonID-IDC_BUTTON_RECT].color;
@@ -1750,21 +1807,21 @@ void CSCDialog::DrawScrawl(HDC hDC, HBITMAP hBitmap)
 				width = length*cus_line_width/8;
 			else
 				width = side*cus_line_width/8;
-			
+
 			double alpha = acos((double)(pt[3].x - pt[0].x)/length);
 			if(pt[3].y > pt[0].y)
 				alpha = 2*PI - alpha;
-			
+
 			pt[2].x = pt[3].x - width*cos(PI/6 - alpha);
 			pt[2].y = pt[3].y - width*sin(PI/6 - alpha);
-			
+
 			double x0 = pt[3].x - (pt[3].x - pt[0].x)*sin(PI/3)*width/length;
 			double y0 = pt[3].y + (pt[0].y - pt[3].y)*sin(PI/3)*width/length;
-			
+
 			pt[1].x = (pt[2].x + x0)/2, pt[1].y = (pt[2].y + y0)/2;
 			pt[4].x = 2*x0 - pt[2].x, pt[4].y = 2*y0 - pt[2].y;
 			pt[5].x = 2*x0 - pt[1].x, pt[5].y = 2*y0 - pt[1].y;	
-			
+
 			HBRUSH hFillBrush = ::CreateSolidBrush(cus_color);
 			HBRUSH hOldFillBrush = (HBRUSH)::SelectObject(hDC, hFillBrush);
 			Polygon(hDC, pt, 6);
@@ -1811,51 +1868,51 @@ void CSCDialog::DrawSelRgnEdge(HDC hDC)
 	::MoveToEx(hDC, m_rtSel.left, m_rtSel.top, NULL), ::LineTo(hDC, m_rtSel.left, m_rtSel.bottom);
 	::LineTo(hDC, m_rtSel.right, m_rtSel.bottom), ::LineTo(hDC, m_rtSel.right, m_rtSel.top);
 	::LineTo(hDC, m_rtSel.left, m_rtSel.top);
-	
+
 	if(!m_bCapWnd)
 	{
 		//设置拉伸点的边长
 		const int side = 4;
-		
+
 		HBRUSH hBrush = ::CreateSolidBrush(RGB(0, 0, 255));
 		HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
-		
+
 		//填充4个角点
 		RECT rtTL, rtTR, rtBL, rtBR;
 		rtTL.left = m_rtSel.left - side/2, rtTL.right = m_rtSel.left + side/2;
 		rtTL.top = m_rtSel.top - side/2, rtTL.bottom = m_rtSel.top + side/2;
 		::FillRect(hDC, &rtTL, hBrush);
-		
+
 		rtTR.left = m_rtSel.right - side/2, rtTR.right = m_rtSel.right + side/2;
 		rtTR.top = m_rtSel.top - side/2, rtTR.bottom = m_rtSel.top + side/2;
 		::FillRect(hDC, &rtTR, hBrush);
-		
+
 		rtBL.left = m_rtSel.left - side/2, rtBL.right = m_rtSel.left + side/2;
 		rtBL.top = m_rtSel.bottom - side/2, rtBL.bottom = m_rtSel.bottom + side/2;
 		::FillRect(hDC, &rtBL, hBrush);
-		
+
 		rtBR.left = m_rtSel.right - side/2, rtBR.right = m_rtSel.right + side/2;
 		rtBR.top = m_rtSel.bottom - side/2, rtBR.bottom = m_rtSel.bottom + side/2;
 		::FillRect(hDC, &rtBR, hBrush);
-		
+
 		//填充4个边点
 		RECT rtL, rtR, rtT, rtB;
 		rtL.left = m_rtSel.left - side/2, rtL.right = m_rtSel.left + side/2;
 		rtL.top = (m_rtSel.top+m_rtSel.bottom)/2 - side/2, rtL.bottom = (m_rtSel.top+m_rtSel.bottom)/2 + side/2;
 		::FillRect(hDC, &rtL, hBrush);
-		
+
 		rtR.left = m_rtSel.right - side/2, rtR.right = m_rtSel.right + side/2;
 		rtR.top = (m_rtSel.top+m_rtSel.bottom)/2 - side/2, rtR.bottom = (m_rtSel.top+m_rtSel.bottom)/2 + side/2;
 		::FillRect(hDC, &rtR, hBrush);
-		
+
 		rtT.left = (m_rtSel.left+m_rtSel.right)/2 - side/2, rtT.right = (m_rtSel.left+m_rtSel.right)/2 + side/2;
 		rtT.top = m_rtSel.top - side/2, rtT.bottom = m_rtSel.top + side/2;
 		::FillRect(hDC, &rtT, hBrush);
-		
+
 		rtB.left = (m_rtSel.left+m_rtSel.right)/2 - side/2, rtB.right = (m_rtSel.left+m_rtSel.right)/2 + side/2;
 		rtB.top = m_rtSel.bottom - side/2, rtB.bottom = m_rtSel.bottom + side/2;
 		::FillRect(hDC, &rtB, hBrush);
-		
+
 		::SelectObject(hDC, hOldBrush);
 		::DeleteObject(hBrush);		
 	}	
@@ -1908,19 +1965,19 @@ void CSCDialog::DrawTip(HDC hDC)
 	::SelectObject(hDC, hOldPen);
 	::DeleteObject(hPen);
 
- 	//绘制提示文字	
+	//绘制提示文字	
 	RECT rtText;
 	rtText.left = m_rtTip.left, rtText.right = m_rtTip.right;
 	rtText.top = (m_rtTip.top + m_rtTip.bottom)/2, rtText.bottom = m_rtTip.bottom; 	
- 
- 	HBRUSH hBrush = ::CreateSolidBrush(RGB(0, 0, 0));
- 	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
- 
- 	::FillRect(hDC, &rtText, hBrush);
- 
- 	::SelectObject(hDC, hOldBrush);
- 	::DeleteObject(hBrush);
-	
+
+	HBRUSH hBrush = ::CreateSolidBrush(RGB(0, 0, 0));
+	HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
+
+	::FillRect(hDC, &rtText, hBrush);
+
+	::SelectObject(hDC, hOldBrush);
+	::DeleteObject(hBrush);
+
 	//字体高度
 	const int heightFont = 12;
 
@@ -1973,12 +2030,12 @@ void CSCDialog::UpdateCaptureState()
 	{
 		if(m_CursorPos == CP_OUTSIDE)
 		{
-			 //鼠标在裁剪边界以外
+			//鼠标在裁剪边界以外
 			m_CaptureState = CS_NORMAL;
 		}
 		else if(m_CursorPos == CP_INSIDE)
 		{
-			 //鼠标在裁剪边界以内
+			//鼠标在裁剪边界以内
 			m_CaptureState = CS_MOVE;
 		}
 		else
@@ -2115,7 +2172,7 @@ void CSCDialog::UpdateCursor()
 			}
 		}		
 	}	
-	
+
 	if(m_hCursor)
 	{
 		::DestroyCursor(m_hCursor);
@@ -2229,7 +2286,7 @@ HBITMAP CSCDialog::GetGrayBitmap(HBITMAP hBitmap, COLORREF colorGray, double alp
 	HDC hMemDC2 = ::CreateCompatibleDC(hDC);	
 	HBITMAP hGrayBitmap = ::CreateCompatibleBitmap(hDC, bitmapInfo.bmWidth, bitmapInfo.bmHeight);
 	HBITMAP hOldBitmap2 = (HBITMAP)::SelectObject(hMemDC2, hGrayBitmap);
-	
+
 	::BitBlt(hMemDC2, 0, 0, bitmapInfo.bmWidth, bitmapInfo.bmHeight, hMemDC1, 0, 0, SRCCOPY);
 
 	/**********************************************************************/
@@ -2242,13 +2299,13 @@ HBITMAP CSCDialog::GetGrayBitmap(HBITMAP hBitmap, COLORREF colorGray, double alp
 	BmpInfo.bmiHeader.biPlanes = 1;
 	BmpInfo.bmiHeader.biBitCount = 32;
 	BmpInfo.bmiHeader.biCompression = BI_RGB;	
-	
+
 	int BmpSize = BmpInfo.bmiHeader.biWidth*BmpInfo.bmiHeader.biHeight*4;	
-	
+
 	PVOID pBmpData;
 	pBmpData = ::HeapAlloc(GetProcessHeap(), HEAP_NO_SERIALIZE, BmpSize);
 	ZeroMemory(pBmpData, BmpSize);	
-	
+
 	::GetDIBits(hMemDC2, hGrayBitmap, 0, BmpInfo.bmiHeader.biHeight, pBmpData, &BmpInfo, DIB_RGB_COLORS);
 
 	unsigned char* pData = (unsigned char*)pBmpData;
@@ -2302,7 +2359,7 @@ HBITMAP CSCDialog::CopyBitmap(HBITMAP hSrcBitmap, HBITMAP hDstBitmap, const RECT
 		rtDst.right = bitmapInfoSrc.bmWidth;
 		rtDst.bottom = bitmapInfoSrc.bmHeight;		
 	}
-	
+
 	HDC hDC = ::GetDC(NULL);	
 	HDC hSrcMemDC = ::CreateCompatibleDC(hDC);	
 	HBITMAP hOldSrcBitmap = (HBITMAP)::SelectObject(hSrcMemDC, hSrcBitmap);
@@ -2312,16 +2369,16 @@ HBITMAP CSCDialog::CopyBitmap(HBITMAP hSrcBitmap, HBITMAP hDstBitmap, const RECT
 		hDstBitmap = ::CreateCompatibleBitmap(hDC, rtDst.right - rtDst.left, rtDst.bottom - rtDst.top);
 	}
 	HBITMAP hOldDstBitmap = (HBITMAP)::SelectObject(hDstMemDC, hDstBitmap);	
-	
+
 	StretchBlt(hDstMemDC, rtDst.left, rtDst.top, rtDst.right - rtDst.left, rtDst.bottom - rtDst.top, 
 		hSrcMemDC, rtSrc.left, rtSrc.top, rtSrc.right - rtSrc.left, rtSrc.bottom - rtSrc.top, SRCCOPY);
-	
+
 	::SelectObject(hSrcMemDC, hOldSrcBitmap);
 	::SelectObject(hDstMemDC, hOldDstBitmap);
-	
+
 	::DeleteDC(hSrcMemDC);
 	::DeleteDC(hDstMemDC);
-	
+
 	return hDstBitmap;	
 }
 
@@ -2380,7 +2437,7 @@ void CSCDialog::BackEditBmp()
 			DeleteObject(hLastBimtap);
 		}
 		m_vecBitmaps.erase(iterLast);
-				
+
 		m_hCurScrawlBimtap = (*iterPreLast);
 		m_bSelBack = true;
 		InvalidateRect(m_hDlg, &m_rtSel, FALSE);	
@@ -2450,7 +2507,7 @@ void CSCDialog::SaveAsCaptureBmp()
 
 			strcpy(g_pCaptureData->filename, filename);
 			g_pCaptureData->capture_oper = CO_SAVEAS;
-			
+
 			::EndDialog(m_hDlg, 0);	
 		}		
 	}
@@ -2470,7 +2527,7 @@ void CSCDialog::EnsureScreenCapture()
 	sprintf(title, "%d-%d-%d-%d-%d-%d.jpg", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 	strcpy(g_pCaptureData->filename, g_pCaptureData->save_dir);
 	strcat(g_pCaptureData->filename, title);
-	
+
 	RECT rtSrc;
 	rtSrc.left = rtSrc.top = 0;
 	rtSrc.right = m_rtSel.right - m_rtSel.left;
@@ -2478,7 +2535,7 @@ void CSCDialog::EnsureScreenCapture()
 	CopyBitmap(m_hCurScrawlBimtap, m_hBitmap, &rtSrc, &m_rtSel);
 
 	bool bRet = SaveBitmapToFile(m_hBitmap, m_rtSel.left, m_rtSel.top, 
-			m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top, g_pCaptureData->filename, true);	
+		m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top, g_pCaptureData->filename, true);	
 
 	if(bRet)
 	{
@@ -2569,7 +2626,7 @@ BOOL CSCDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	m_edWord.CreateEdit(IDC_EDIT_WORD, this->m_hDlg, ES_MULTILINE | ES_WANTRETURN);
 	::SetWindowPos(m_edWord.m_hWnd, NULL, 0, 0, WORD_WIDTH, WORD_HEIGHT, SWP_HIDEWINDOW | SWP_NOZORDER | SWP_NOMOVE);	
 	m_edWord.m_bEdit = FALSE;
-	
+
 	return FALSE;
 }
 
@@ -2627,7 +2684,7 @@ BOOL CSCDialog::DialogOnCommand(WPARAM wParam, LPARAM lParam)
 			{
 				m_rtWord.bottom += 20;
 			}
-								
+
 			if(m_rtWord.right > m_rtSel.right)
 			{
 				m_rtWord.right = m_rtSel.right;				
@@ -2674,7 +2731,7 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 
 	PAINTSTRUCT ps;
 	HDC hDC = ::BeginPaint(m_hDlg, &ps);	
-		
+
 	//获取屏幕位图的信息
 	BITMAP bitmapInfo;
 	::GetObject(m_hBitmap, sizeof(BITMAP), &bitmapInfo);
@@ -2690,7 +2747,7 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 	::BitBlt(hMemDC, 0, 0, rtClient.right - rtClient.left, rtClient.bottom - rtClient.top, hMemDC1, 0, 0, SRCCOPY);
 	::SelectObject(hMemDC1, hOldBitmap1);
 	::DeleteDC(hMemDC1);
-	
+
 	//绘制选中区域
 	HDC hMemDC2 = ::CreateCompatibleDC(hDC);
 	HBITMAP hOldBitmap2 = (HBITMAP)::SelectObject(hMemDC2, m_hBitmap);
@@ -2710,25 +2767,25 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 			m_bSelBack = false;
 
 			HBITMAP hOldBitmap3 = (HBITMAP)::SelectObject(hMemDC3, m_hCurScrawlBimtap);					
-			
+
 			::BitBlt(hMemDC, m_rtSel.left, m_rtSel.top, m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top,
 				hMemDC3, 0, 0, SRCCOPY);
-			
+
 			::SelectObject(hMemDC3, hOldBitmap3);			
 		}	
 		else
 		{
 			HBITMAP hTempBitmap = CopyBitmap(m_hCurScrawlBimtap);
 			HBITMAP hOldBitmap3 = (HBITMAP)::SelectObject(hMemDC3, hTempBitmap);
-			
+
 			//涂鸦绘制
 			DrawScrawl(hMemDC3, hTempBitmap);
-			
+
 			::BitBlt(hMemDC, m_rtSel.left, m_rtSel.top, m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top,
 				hMemDC3, 0, 0, SRCCOPY);
-			
+
 			::SelectObject(hMemDC3, hOldBitmap3);
-			
+
 			if(!m_bStartEdit)
 			{		
 				m_vecBitmaps.push_back(hTempBitmap);
@@ -2741,7 +2798,7 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 		}
 		::DeleteDC(hMemDC3);		
 	}
-	
+
 	//绘制选中区域的边界
 	DrawSelRgnEdge(hMemDC);
 
@@ -2774,7 +2831,7 @@ BOOL CSCDialog::DialogOnLButtonDown(WPARAM wParam, LPARAM lParam)
 	{
 		m_ptScrawStart.x = xPos;
 		m_ptScrawStart.y = yPos;	
-			
+
 		if(m_nWordCount%2 == 0 && m_ToolDlg.m_nSelDrawButtonID == IDC_BUTTON_WORD)
 		{						
 			m_rtWord.left = xPos - WORD_GAP, m_rtWord.right = m_rtWord.left + WORD_WIDTH + 2*WORD_GAP;
@@ -2812,11 +2869,11 @@ BOOL CSCDialog::DialogOnLButtonDown(WPARAM wParam, LPARAM lParam)
 		{
 			POINT point;
 			point.x = xPos, point.y = yPos;
-			
+
 			UpdateCursorPos(point);
 			UpdateCaptureState();
 			UpdateCursor();	
-			
+
 			if(m_CursorPos != CP_OUTSIDE)
 			{
 				m_ptStart.x = point.x, m_ptStart.y = point.y; //记录鼠标开始按下的位置
@@ -2838,12 +2895,12 @@ BOOL CSCDialog::DialogOnLButtonUp(WPARAM wParam, LPARAM lParam)
 	DWORD fwKeys = wParam;
 	WORD xPos = LOWORD(lParam); 
 	WORD yPos = HIWORD(lParam);  
-	
+
 	if(m_ToolDlg.m_bEdit)
 	{
 		m_ptScrawEnd.x = xPos;
 		m_ptScrawEnd.y = yPos;
-		
+
 		if(m_ToolDlg.m_nSelDrawButtonID == IDC_BUTTON_WORD)
 		{			
 			if(++m_nWordCount%2 == 0)
@@ -2885,7 +2942,7 @@ BOOL CSCDialog::DialogOnLButtonUp(WPARAM wParam, LPARAM lParam)
 		{								
 			m_ptEnd.x = point.x, m_ptEnd.y = point.y; //记录鼠标开始抬起的位置
 		}
-		
+
 		UpdateCursorPos(point);
 		UpdateCaptureState();
 		UpdateCursor();	
@@ -2923,7 +2980,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 			m_rtScrawl.left = xPos;
 			m_rtScrawl.right = m_ptScrawStart.x;
 		}
-		
+
 		if(yPos > m_ptScrawStart.y)
 		{
 			m_rtScrawl.top = m_ptScrawStart.y;
@@ -2946,7 +3003,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 
 		m_ptScrawEnd.x = xPos;
 		m_ptScrawEnd.y = yPos;		
-		
+
 		m_ptScrawls.push_back(point);
 	}
 	else
@@ -2965,7 +3022,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 					m_rtSel.left = xPos;
 					m_rtSel.right = m_ptCapStart.x;
 				}
-				
+
 				if(yPos > m_ptCapStart.y)
 				{
 					m_rtSel.top = m_ptCapStart.y;
@@ -3035,7 +3092,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 					}
 
 					memcpy(&m_rtSel, &rtTemp, sizeof(RECT));		
-					
+
 					m_bShowTip = false;
 					UpdateToolWndPos();			
 				}	
@@ -3055,7 +3112,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 							rtTemp.top = m_rtScreenShow.bottom;
 							yOffset = m_rtScreenShow.bottom - m_rtCutStart.top;
 						}				
-						
+
 						rtTemp.bottom = m_rtCutStart.bottom;
 						rtTemp.left = m_rtCutStart.left;
 						rtTemp.right = m_rtCutStart.right;
@@ -3074,7 +3131,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 							rtTemp.bottom = m_rtScreenShow.top;
 							yOffset = m_rtScreenShow.top - m_rtCutStart.bottom;
 						}							
-			
+
 						rtTemp.top = m_rtCutStart.top;
 						rtTemp.left = m_rtCutStart.left;
 						rtTemp.right = m_rtCutStart.right;
@@ -3215,7 +3272,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 							rtTemp.bottom = m_rtScreenShow.top;	
 							yOffset = m_rtScreenShow.top - m_rtCutStart.bottom;
 						}
-						
+
 						rtTemp.left = m_rtCutStart.left;
 						rtTemp.right = m_rtCutStart.right + xOffset;
 						if(rtTemp.right > m_rtScreenShow.right)
@@ -3229,7 +3286,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 							xOffset = m_rtScreenShow.left - m_rtCutStart.right;
 						}					
 					}			
-					
+
 					//做裁剪矩形方向调整
 					if(rtTemp.right < rtTemp.left)
 					{
@@ -3244,14 +3301,14 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 						rtTemp.top = t;
 					}								
 					memcpy(&m_rtSel, &rtTemp, sizeof(RECT));		
-					
+
 					m_bShowTip = true;
 					m_ToolDlg.ShowToolDlg(false);
 				}
 			}		
 		}
 	}	
-	
+
 	if((fwKeys == MK_LBUTTON || m_bStartPrintScr) && m_ToolDlg.m_nSelDrawButtonID != IDC_BUTTON_WORD)
 	{		
 		UpdateShowRgn();
@@ -3268,27 +3325,27 @@ BOOL CSCDialog::DialogOnDestroy(WPARAM wParam, LPARAM lParam)
 		::DestroyCursor(m_hCursor);
 		m_hCursor = NULL;
 	}		
-		
+
 	if(m_hBitmap)
 	{
 		::DeleteObject(m_hBitmap);	
 		m_hBitmap = NULL;
 	}		
-	
+
 	if(m_hGrayBitmap)
 	{
 		::DeleteObject(m_hGrayBitmap);	
 		m_hGrayBitmap = NULL;
 	}		
-	
+
 	m_hCurScrawlBimtap = NULL;
-	
+
 	if(m_rtWnds.size()>0)
 		m_rtWnds.clear();
-	
+
 	if(m_ptScrawls.size()>0)
 		m_ptScrawls.clear();
-	
+
 	if(m_vecBitmaps.size()>0)
 	{
 		for(vector<HBITMAP>::const_iterator iter = m_vecBitmaps.begin(); iter != m_vecBitmaps.end(); iter++)
@@ -3326,7 +3383,7 @@ BOOL CSCDialog::OnMsgFromEdit(WPARAM wParam, LPARAM lParam)
 {
 	if((HWND)wParam == m_edWord.m_hWnd && lParam == WM_KILLFOCUS)
 	{
-		
+
 	}
 	return TRUE;
 }
@@ -3358,8 +3415,8 @@ BOOL CSCDialog::OnMsgFromCustom(WPARAM wParam, LPARAM lParam)
 				DEFAULT_QUALITY,
 				DEFAULT_PITCH,
 				NULL
-			);
-			
+				);
+
 			m_edWord.SetFont(hFont);
 			::InvalidateRect(m_hDlg, &m_rtWord, FALSE);
 		}
