@@ -2521,30 +2521,17 @@ void CSCDialog::CancelScreenCapture()
 
 void CSCDialog::EnsureScreenCapture()
 {
-	SYSTEMTIME st;
-	::GetLocalTime(&st);
-	char title[MAX_PATH] = {0};	
-	sprintf(title, "%d-%d-%d-%d-%d-%d.jpg", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-	strcpy(g_pCaptureData->filename, g_pCaptureData->save_dir);
-	strcat(g_pCaptureData->filename, title);
-
 	RECT rtSrc;
 	rtSrc.left = rtSrc.top = 0;
 	rtSrc.right = m_rtSel.right - m_rtSel.left;
 	rtSrc.bottom = m_rtSel.bottom - m_rtSel.top;
 	CopyBitmap(m_hCurScrawlBimtap, m_hBitmap, &rtSrc, &m_rtSel);
 
-	bool bRet = SaveBitmapToFile(m_hBitmap, m_rtSel.left, m_rtSel.top, 
-		m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top, g_pCaptureData->filename, true);	
+	SaveBitmapToClipBoard(m_hBitmap, m_rtSel.left, m_rtSel.top, m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top);	
 
-	if(bRet)
-	{
-		//图片类型转换bmp->jpg
-		ConvertImageFomat(g_pCaptureData->filename, IF_JPG);
+	g_pCaptureData->capture_oper = CO_SURE;
+	::EndDialog(m_hDlg, 0);	
 
-		g_pCaptureData->capture_oper = CO_SURE;
-		::EndDialog(m_hDlg, 0);	
-	}	
 }
 
 INT_PTR CSCDialog::ShowScreenCaptureDlg()
