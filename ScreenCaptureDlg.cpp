@@ -1,5 +1,5 @@
+ï»¿#include "ScreenCapture.h"
 #include "ScreenCaptureDlg.h"
-#include "ScreenCapture.h"
 #include "resource.h"
 
 #define WM_MSG_FROM_TOOL (WM_USER + 0X1001)
@@ -28,20 +28,20 @@ extern CAPTURE_DATA* g_pCaptureData;
 extern CSCDialog g_scDialog;
 extern HANDLE g_hModule;
 
- //ÈıÖÖ×Ô¶¨ÒåÏß¿í
+ //ä¸‰ç§è‡ªå®šä¹‰çº¿å®½
 int g_custom_line_width[3] = {1, 2, 4};
 
-//10ÖÖ×Ô¶¨Òå×ÖÌå´óĞ¡
+//10ç§è‡ªå®šä¹‰å­—ä½“å¤§å°
 int g_custom_font_size[10] = {8, 9, 10, 11, 12, 14, 16,18, 20, 22};
 
-//16ÖÖ×Ô¶¨ÒåÑÕÉ«
+//16ç§è‡ªå®šä¹‰é¢œè‰²
 COLORREF g_custom_color[16] = {RGB(0, 0, 0), RGB(128, 128, 128), RGB(128, 0, 0), RGB(247, 136, 58), 
 							   RGB(48, 132, 48), RGB(56, 90, 211), RGB(128, 0, 128), RGB(0, 153, 153), 
 							   RGB(255, 255, 255), RGB(192, 192, 192), RGB(251, 56, 56), RGB(255, 255, 0), 
 							   RGB(153, 204, 0), RGB(56, 148, 228), RGB(243, 27, 243), RGB(22, 220, 220)
 };
 
-//Ğ´ÈÕÖ¾
+//å†™æ—¥å¿—
 void WriteLog(char *string, ...)
 {
 	char buffer[1024];
@@ -65,7 +65,7 @@ void WriteLog(char *string, ...)
 	fclose(file);
 }
 
-//´íÎóÌáÊ¾¿ò
+//é”™è¯¯æç¤ºæ¡†
 VOID ErrorBox(LPTSTR ErrorInfo)
 {
 	CHAR error1[50],error2[20];
@@ -75,7 +75,7 @@ VOID ErrorBox(LPTSTR ErrorInfo)
 	::MessageBox(NULL, error1, "error", MB_OK);
 }
 
-//´´½¨ÆÕÍ¨×ÖÌå
+//åˆ›å»ºæ™®é€šå­—ä½“
 HFONT CreateSimpleFont(int width,int height)
 {
 	HFONT hFont = ::CreateFont(
@@ -97,7 +97,7 @@ HFONT CreateSimpleFont(int width,int height)
 	return hFont;
 }
 
-//°ÑÎ»Í¼¾ä±úĞ´Èëµ½ÎÄ¼ş
+//æŠŠä½å›¾å¥æŸ„å†™å…¥åˆ°æ–‡ä»¶
 bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char* filename, bool bSaveCB)
 {
 	if(!hBitmap || !filename)
@@ -204,7 +204,7 @@ bool SaveBitmapToFile(HBITMAP hBitmap, int x, int y, int width, int height, char
 	return true;
 }
 
-//´Ó×ÊÔ´ÖĞ¼ÓÔØPNG
+//ä»èµ„æºä¸­åŠ è½½PNG
 Gdiplus::Image* LoadPNGFromRes(UINT pResourceID, HMODULE hInstance, LPCTSTR pResourceType)
 {
 	HBITMAP hBitmap = NULL;
@@ -269,20 +269,20 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	
 	ImageCodecInfo* pImageCodecInfo = NULL;    
 	
-	//2.»ñÈ¡GDI+Ö§³ÖµÄÍ¼Ïñ¸ñÊ½±àÂëÆ÷ÖÖÀàÊıÒÔ¼°ImageCodecInfoÊı×éµÄ´æ·Å´óĞ¡     
+	//2.è·å–GDI+æ”¯æŒçš„å›¾åƒæ ¼å¼ç¼–ç å™¨ç§ç±»æ•°ä»¥åŠImageCodecInfoæ•°ç»„çš„å­˜æ”¾å¤§å°     
 	GetImageEncodersSize(&num, &size);    
 	if(size == 0)    
 		return -1;  // Failure     
 	
-	//3.ÎªImageCodecInfoÊı×é·ÖÅä×ã¶î¿Õ¼ä     
+	//3.ä¸ºImageCodecInfoæ•°ç»„åˆ†é…è¶³é¢ç©ºé—´     
 	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));    
 	if(pImageCodecInfo == NULL)    
 		return -1;  // Failure     
 	
-	//4.»ñÈ¡ËùÓĞµÄÍ¼Ïñ±àÂëÆ÷ĞÅÏ¢     
+	//4.è·å–æ‰€æœ‰çš„å›¾åƒç¼–ç å™¨ä¿¡æ¯     
 	GetImageEncoders(num, size, pImageCodecInfo);    
 	
-	//5.²éÕÒ·ûºÏµÄÍ¼Ïñ±àÂëÆ÷µÄClsid     
+	//5.æŸ¥æ‰¾ç¬¦åˆçš„å›¾åƒç¼–ç å™¨çš„Clsid     
 	for(UINT j = 0; j < num; ++j)    
 	{    
 		if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )    
@@ -293,7 +293,7 @@ int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 		}        
 	}    
 	
-	//6.ÊÍ·Å²½Öè3·ÖÅäµÄÄÚ´æ     
+	//6.é‡Šæ”¾æ­¥éª¤3åˆ†é…çš„å†…å­˜     
 	free(pImageCodecInfo);    
 	return -1;  // Failure     
 } 
@@ -641,7 +641,7 @@ BOOL CMyButton::OnTimer(WPARAM wParam, LPARAM lParam)
 
 BOOL CMyButton::OnDestroy(WPARAM wParam, LPARAM lParam)
 {	
-	//ÊÍ·Å±³¾°Í¼Æ¬
+	//é‡Šæ”¾èƒŒæ™¯å›¾ç‰‡
 	for(int i = 0; i< 4; i++)
 	{
 		if(m_pBkImage[i])
@@ -924,7 +924,7 @@ BOOL CALLBACK CCustomDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 			return pCustomDlg->DialogOnDestroy(wParam, lParam);
 		}	
 	}	
-	return FALSE; //¶ÔÓÚ¶Ô»°¿ò´¦Àí³ÌĞò£¬ÔÚ´¦ÀíÍêÏûÏ¢Ö®ºó£¬Ó¦¸Ã·µ»ØFALSE£¬ÈÃÏµÍ³½øÒ»²½´¦Àí
+	return FALSE; //å¯¹äºå¯¹è¯æ¡†å¤„ç†ç¨‹åºï¼Œåœ¨å¤„ç†å®Œæ¶ˆæ¯ä¹‹åï¼Œåº”è¯¥è¿”å›FALSEï¼Œè®©ç³»ç»Ÿè¿›ä¸€æ­¥å¤„ç†
 }
 
 BOOL CCustomDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
@@ -948,7 +948,7 @@ BOOL CCustomDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	
 	::SetWindowPos(m_hDlg, HWND_TOP, 0, 0, CUSTOM_DIALOG_CX, CUSTOM_DIALOG_CY, SWP_SHOWWINDOW | SWP_NOMOVE);
 
-	//´´½¨°´Å¥
+	//åˆ›å»ºæŒ‰é’®
 	m_buttonWidth[0].CreateButton(IDC_BUTTON_SIZE_SMA, this->m_hDlg);
 	m_buttonWidth[1].CreateButton(IDC_BUTTON_SIZE_MID, this->m_hDlg);
 	m_buttonWidth[2].CreateButton(IDC_BUTTON_SIZE_BIG, this->m_hDlg);
@@ -958,7 +958,7 @@ BOOL CCustomDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 		m_buttonColor[i].CreateButton(IDC_BUTTON_COLOR_BASE + i, this->m_hDlg);
 	}
 
-	//µ÷Õû¿Ø¼şµÄÎ»ÖÃ
+	//è°ƒæ•´æ§ä»¶çš„ä½ç½®
 	RECT rtCombol;
 	::GetWindowRect(::GetDlgItem(m_hDlg, IDC_COMBO_FONTSIZE), &rtCombol);
 	::MoveWindow(::GetDlgItem(m_hDlg, IDC_COMBO_FONTSIZE), (CUSTOM_DIALOG_CY-(rtCombol.bottom-rtCombol.top))/2, CUSTOM_DIALOG_MARGIN+SIZE_BUTTON_GAP, FONT_SIZE_BUTTON_WIDTH, rtCombol.bottom-rtCombol.top, FALSE);	
@@ -971,24 +971,24 @@ BOOL CCustomDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	int xPos = 4*CUSTOM_DIALOG_MARGIN + FONT_SIZE_BUTTON_WIDTH + SEPARATION_LINE_WIDTH + COLOR_STATIC_WIDTH; 
 	int yPos = CUSTOM_DIALOG_MARGIN;
-	for(i = 0; i< 8; i++)
+	for(int i = 0; i< 8; i++)
 	{		
 		::MoveWindow(::GetDlgItem(m_hDlg, IDC_BUTTON_COLOR_BASE + i), xPos, yPos, COLOR_BUTTON_WIDTH, COLOR_BUTTON_HEIGHT, FALSE);
 		xPos += COLOR_BUTTON_WIDTH + COLOR_BUTTON_GAP;
 	}
 	xPos = 4*CUSTOM_DIALOG_MARGIN + FONT_SIZE_BUTTON_WIDTH + SEPARATION_LINE_WIDTH + COLOR_STATIC_WIDTH; 
 	yPos += COLOR_BUTTON_HEIGHT + COLOR_BUTTON_GAP;
-	for(i = 8; i< 16; i++)
+	for(int i = 8; i< 16; i++)
 	{
 		::MoveWindow(::GetDlgItem(m_hDlg, IDC_BUTTON_COLOR_BASE + i), xPos, yPos, COLOR_BUTTON_WIDTH, COLOR_BUTTON_HEIGHT, FALSE);
 		xPos += COLOR_BUTTON_WIDTH + COLOR_BUTTON_GAP;
 	}
 
-	//ÉèÖÃ·Ö¸îÏßµÄÎ»ÖÃ
+	//è®¾ç½®åˆ†å‰²çº¿çš„ä½ç½®
 	m_ptSepLine[0].x = m_ptSepLine[1].x = 2*CUSTOM_DIALOG_MARGIN + FONT_SIZE_BUTTON_WIDTH;
 	m_ptSepLine[0].y = CUSTOM_DIALOG_MARGIN, m_ptSepLine[1].y = m_ptSepLine[0].y + SEPARATION_LINE_HEIGHT;
 
-	//¸ø°´Å¥Ìí¼Ó±³¾°Í¼Æ¬
+	//ç»™æŒ‰é’®æ·»åŠ èƒŒæ™¯å›¾ç‰‡
 	m_buttonWidth[0].SetPNGBitmaps(LoadPNGFromRes(IDR_PNG_SIZE_SMA_NORMAL, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_SIZE_SMA_HOVER, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_SIZE_SMA_DOWN, (HINSTANCE)g_hModule, "PNG")
@@ -1004,24 +1004,24 @@ BOOL CCustomDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 		LoadPNGFromRes(IDR_PNG_SIZE_BIG_DOWN, (HINSTANCE)g_hModule, "PNG")
 		);
 
-	//ÉèÖÃ×Ô»æ»Øµ÷º¯Êı
-	for(i = 0; i< 16; i++)
+	//è®¾ç½®è‡ªç»˜å›è°ƒå‡½æ•°
+	for(int i = 0; i< 16; i++)
 	{
 		m_buttonColor[i].SetCustomDrawButtonCallback(CCustomDialog::DrawColorButton);
 	}
 
-	//ÉèÖÃ°´Å¥ÑùÊ½
+	//è®¾ç½®æŒ‰é’®æ ·å¼
 	m_buttonWidth[0].SetButtonStyle(BS_RADIO);
 	m_buttonWidth[1].SetButtonStyle(BS_RADIO);
 	m_buttonWidth[2].SetButtonStyle(BS_RADIO);
 
-	for(i = 0; i< 16; i++)
+	for(int i = 0; i< 16; i++)
 	{
 		m_buttonColor[i].SetButtonStyle(BS_BUTTON);
 	}
 
 	char strFontSize[10][5] = {0};
-	for(i = 0; i< 10; i++)
+	for(int i = 0; i< 10; i++)
 	{		
 		_itoa(g_custom_font_size[i], strFontSize[i], 10);
 		::SendMessage(::GetDlgItem(m_hDlg, IDC_COMBO_FONTSIZE), CB_ADDSTRING, (WPARAM)0, (LPARAM)strFontSize[i]);
@@ -1103,14 +1103,14 @@ BOOL CCustomDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 	
 	::FillRect(hDC, &rtClient, hBrush);
 
-	//»æÖÆ·Ö¸îÏß
+	//ç»˜åˆ¶åˆ†å‰²çº¿
 	HPEN hGrayPen = ::CreatePen(PS_SOLID, 1, RGB(192, 192, 192));
 	HPEN hOldPen = (HPEN)::SelectObject(hDC, hGrayPen);
 
 	::MoveToEx(hDC, m_ptSepLine[0].x, m_ptSepLine[0].y, NULL);
 	::LineTo(hDC, m_ptSepLine[1].x, m_ptSepLine[1].y);
 
-	//»æÖÆcolor static
+	//ç»˜åˆ¶color static
 	HWND hColorWnd = ::GetDlgItem(m_hDlg, IDC_STATIC_COLOR);
 	RECT rtColorClient;
 	::GetClientRect(hColorWnd, &rtColorClient);
@@ -1201,7 +1201,7 @@ BOOL CALLBACK CToolDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 			return pToolDlg->DialogOnDestroy(wParam, lParam);
 		}	
 	}	
-	return FALSE; //¶ÔÓÚ¶Ô»°¿ò´¦Àí³ÌĞò£¬ÔÚ´¦ÀíÍêÏûÏ¢Ö®ºó£¬Ó¦¸Ã·µ»ØFALSE£¬ÈÃÏµÍ³½øÒ»²½´¦Àí
+	return FALSE; //å¯¹äºå¯¹è¯æ¡†å¤„ç†ç¨‹åºï¼Œåœ¨å¤„ç†å®Œæ¶ˆæ¯ä¹‹åï¼Œåº”è¯¥è¿”å›FALSEï¼Œè®©ç³»ç»Ÿè¿›ä¸€æ­¥å¤„ç†
 }
 
 BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
@@ -1239,10 +1239,10 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 	m_hDlg = hWnd;
 
-	//µ÷Õû¹¤¾ßÀ¸¶Ô»°¿òµÄÎ»ÖÃ
+	//è°ƒæ•´å·¥å…·æ å¯¹è¯æ¡†çš„ä½ç½®
  	::SetWindowPos(m_hDlg, HWND_TOP, 0, 0, TOOL_DLG_CX, TOOL_DLG_CY, SWP_SHOWWINDOW);	
 
-	//´´½¨±£´æ¡¢È¡Ïû¡¢È·¶¨°´Å¥	
+	//åˆ›å»ºä¿å­˜ã€å–æ¶ˆã€ç¡®å®šæŒ‰é’®	
 	m_btRect.CreateButton(IDC_BUTTON_RECT, this->m_hDlg);
 	m_btEllipse.CreateButton(IDC_BUTTON_ELLIPSE, this->m_hDlg);
 	m_btArrow.CreateButton(IDC_BUTTON_ARROW, this->m_hDlg);
@@ -1253,7 +1253,7 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	m_btCancel.CreateButton(IDC_BUTTON_CANCEL, this->m_hDlg);	
 	m_btOk.CreateButton(IDC_BUTTON_OK, this->m_hDlg);
 
-	//µ÷Õû°´Å¥µÄÎ»ÖÃ
+	//è°ƒæ•´æŒ‰é’®çš„ä½ç½®
 	RECT rtClient;
 	::GetClientRect(m_hDlg, &rtClient);
 	
@@ -1289,25 +1289,25 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	::MoveWindow(::GetDlgItem(m_hDlg, IDC_BUTTON_BACK), rtBack.left, rtBack.top, 
 		rtBack.right-rtBack.left, rtBack.bottom-rtBack.top, FALSE);
 
-	//µ÷Õûsave°´Å¥Î»ÖÃ
+	//è°ƒæ•´saveæŒ‰é’®ä½ç½®
 	rtSave.left = rtBack.right + TOOL_DLG_GAP, rtSave.right = rtSave.left + TOOL_DLG_BUTTON_SAVE_CX;
 	rtSave.top = rtClient.top + TOOL_DLG_GAP, rtSave.bottom = rtSave.top + TOOL_DLG_BUTTON_SAVE_CY;
 	::MoveWindow(::GetDlgItem(m_hDlg, IDC_BUTTON_SAVE), rtSave.left, rtSave.top, 
 		rtSave.right-rtSave.left, rtSave.bottom-rtSave.top, FALSE);
 
-	//µ÷Õûcancel°´Å¥Î»ÖÃ
+	//è°ƒæ•´cancelæŒ‰é’®ä½ç½®
 	rtCancel.left = rtSave.right + TOOL_DLG_GAP, rtCancel.right = rtCancel.left + TOOL_DLG_BUTTON_CANCEL_CX;
 	rtCancel.top = rtClient.top + TOOL_DLG_GAP, rtCancel.bottom = rtCancel.top + TOOL_DLG_BUTTON_CANCEL_CY;
 	::MoveWindow(::GetDlgItem(m_hDlg, IDC_BUTTON_CANCEL), rtCancel.left, rtCancel.top, 
 		rtCancel.right-rtCancel.left, rtCancel.bottom-rtCancel.top, FALSE);
 
-	//µ÷Õûok°´Å¥Î»ÖÃ
+	//è°ƒæ•´okæŒ‰é’®ä½ç½®
 	rtOk.left = rtCancel.right + TOOL_DLG_GAP, rtOk.right = rtOk.left + TOOL_DLG_BUTTON_OK_CX;
 	rtOk.top = rtClient.top + TOOL_DLG_GAP, rtOk.bottom = rtOk.top + TOOL_DLG_BUTTON_OK_CY;
 	::MoveWindow(::GetDlgItem(m_hDlg, IDC_BUTTON_OK), rtOk.left, rtOk.top, 
 		rtOk.right-rtOk.left, rtOk.bottom-rtOk.top, FALSE);
 
-	//¸ø°´Å¥Ìí¼Ó±³¾°Í¼Æ¬	
+	//ç»™æŒ‰é’®æ·»åŠ èƒŒæ™¯å›¾ç‰‡	
 	m_btRect.SetPNGBitmaps(LoadPNGFromRes(IDR_PNG_RECT_NORMAL, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_RECT_HOVER, (HINSTANCE)g_hModule, "PNG"), 
 		LoadPNGFromRes(IDR_PNG_RECT_DOWN, (HINSTANCE)g_hModule, "PNG")
@@ -1354,7 +1354,7 @@ BOOL CToolDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 		);
 	
 
-	//ÉèÖÃ°´Å¥ÑùÊ½
+	//è®¾ç½®æŒ‰é’®æ ·å¼
 	m_btRect.SetButtonStyle(BS_RADIO);
 	m_btEllipse.SetButtonStyle(BS_RADIO);
 	m_btArrow.SetButtonStyle(BS_RADIO);
@@ -1542,7 +1542,7 @@ void CSCDialog::InitCaptureData()
 	m_ptStart.x = m_ptStart.y = 0;
 	m_ptEnd.x = m_ptEnd.y = 0;
 
-	//»ñÈ¡ÆÁÄ»·Ö±çÂÊ
+	//è·å–å±å¹•åˆ†è¾©ç‡
 	m_nXScreen = ::GetSystemMetrics(SM_CXSCREEN);
 	m_nYScreen = ::GetSystemMetrics(SM_CYSCREEN);
 
@@ -1550,7 +1550,7 @@ void CSCDialog::InitCaptureData()
 	
 	m_rtScreenShow.right = m_nXScreen, m_rtScreenShow.bottom = m_nYScreen;
 
-	//ÔÚ´°ÌåÕ¹ÏÖÖ®Ç°½øĞĞÆÁÄ»½ØÍ¼
+	//åœ¨çª—ä½“å±•ç°ä¹‹å‰è¿›è¡Œå±å¹•æˆªå›¾
 	if(m_hBitmap)
 		::DeleteObject(m_hBitmap);
 	m_hBitmap = PrintScreenToBitmap(0, 0, m_nXScreen, m_nYScreen);
@@ -1577,7 +1577,7 @@ void CSCDialog::InitCaptureData()
 		m_vecBitmaps.clear();		
 	}	
 
-	//²éÕÒµ±Ç°ÆÁÄ»ÖĞµÄËùÓĞ´°Ìå
+	//æŸ¥æ‰¾å½“å‰å±å¹•ä¸­çš„æ‰€æœ‰çª—ä½“
 	::EnumDesktopWindows(NULL, EnumWindowsProc, (LPARAM)this);	
 }
 
@@ -1600,11 +1600,11 @@ HBITMAP CSCDialog::PrintScreenToBitmap(int x, int y, int width, int height)
 
 bool CSCDialog::IsLegalForSelRgn()
 {
-	//±ß½çÅĞ¶Ï
+	//è¾¹ç•Œåˆ¤æ–­
 	if(m_rtSel.left <0 || m_rtSel.top <0 || m_rtSel.right >m_nXScreen || m_rtSel.bottom >m_nYScreen)
 		return false;
 
-	//´óĞ¡ÅĞ¶Ï
+	//å¤§å°åˆ¤æ–­
 	if(m_rtSel.left>=m_rtSel.right || m_rtSel.top>=m_rtSel.bottom)
 		return false;
 	return true;
@@ -1616,24 +1616,24 @@ BOOL CALLBACK CSCDialog::EnumWindowsProc(HWND hwnd, LPARAM lParam)
 	CSCDialog *pDlg = (CSCDialog*)lParam;
 	if(pDlg)
 	{						
-		//¹ıÂËµô·Ç´°ÌåºÍÓĞ²»¿É¼ûÑùÊ½µÄ´°Ìå
+		//è¿‡æ»¤æ‰éçª—ä½“å’Œæœ‰ä¸å¯è§æ ·å¼çš„çª—ä½“
 		if(!::IsWindow(hwnd) || !IsWindowVisible(hwnd))
 			return TRUE;
 
-		//¹ıÂËµôÒş²Ø¡¢×îĞ¡»¯µÄ´°Ìå
+		//è¿‡æ»¤æ‰éšè—ã€æœ€å°åŒ–çš„çª—ä½“
 		WINDOWPLACEMENT wp;
 		wp.length = sizeof(WINDOWPLACEMENT);
 		::GetWindowPlacement(hwnd, &wp);
 		if(wp.showCmd == SW_HIDE || wp.showCmd == SW_MINIMIZE || wp.showCmd == SW_SHOWMINIMIZED)
 			return TRUE;
 		
-		//¹ıÂËµô´°Ìå¾ØĞÎ²»ºÏ·¨µÄ´°Ìå
+		//è¿‡æ»¤æ‰çª—ä½“çŸ©å½¢ä¸åˆæ³•çš„çª—ä½“
 		RECT rtWindow;
 		::GetWindowRect(hwnd, &rtWindow);		
 		if(rtWindow.left>=rtWindow.right || rtWindow.top>=rtWindow.bottom)
 			return TRUE;
 
-		//µ÷Õû´°Ìå¾ØĞÎ
+		//è°ƒæ•´çª—ä½“çŸ©å½¢
 		if(rtWindow.left<0) rtWindow.left = 0;
 		if(rtWindow.top<0) rtWindow.top = 0;
 		if(rtWindow.right > pDlg->m_nXScreen) rtWindow.right = pDlg->m_nXScreen;
@@ -1649,10 +1649,10 @@ void CSCDialog::UpdateTipRect()
 	POINT ptCursor;
 	::GetCursorPos(&ptCursor);
 
-	//ÌáÊ¾¿òµÄ¿í¶È¡¢¸ß¶È
+	//æç¤ºæ¡†çš„å®½åº¦ã€é«˜åº¦
 	const int widthTip = 120, heightTip = 160;
 
-	//ÓÉÓÚÊó±êÖ¸Õë´æÔÚµ¼ÖÂµÄ¸½¼ÓµÄÆ«ÒÆ
+	//ç”±äºé¼ æ ‡æŒ‡é’ˆå­˜åœ¨å¯¼è‡´çš„é™„åŠ çš„åç§»
 	const int widthCur = 8, heightCur = 32;
 	
 	m_rtTip.left = ptCursor.x + widthCur, m_rtTip.top = ptCursor.y + heightCur;
@@ -1744,7 +1744,7 @@ void CSCDialog::DrawScrawl(HDC hDC, HBITMAP hBitmap)
 
 		if(pt[0].x != pt[3].x || pt[0].y != pt[3].y)
 		{
-			double length = pow((pow((pt[3].x - pt[0].x), 2) + pow((pt[3].y - pt[0].y), 2)), 0.5);		
+			double length = powf((powf((pt[3].x - pt[0].x ), 2) + powf((pt[3].y - pt[0].y), 2)), 0.5);		
 			int width = 0, side = 80;
 			if(length < side)
 				width = length*cus_line_width/8;
@@ -1805,20 +1805,20 @@ void CSCDialog::DrawSelRgnEdge(HDC hDC)
 	HPEN hPen = ::CreatePen(PS_SOLID, penWidth, penColor);
 	HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
 
-	//»æÖÆÑ¡ÖĞÇøÓòµÄËÄÌõ±ß
+	//ç»˜åˆ¶é€‰ä¸­åŒºåŸŸçš„å››æ¡è¾¹
 	::MoveToEx(hDC, m_rtSel.left, m_rtSel.top, NULL), ::LineTo(hDC, m_rtSel.left, m_rtSel.bottom);
 	::LineTo(hDC, m_rtSel.right, m_rtSel.bottom), ::LineTo(hDC, m_rtSel.right, m_rtSel.top);
 	::LineTo(hDC, m_rtSel.left, m_rtSel.top);
 	
 	if(!m_bCapWnd)
 	{
-		//ÉèÖÃÀ­ÉìµãµÄ±ß³¤
+		//è®¾ç½®æ‹‰ä¼¸ç‚¹çš„è¾¹é•¿
 		const int side = 4;
 		
 		HBRUSH hBrush = ::CreateSolidBrush(RGB(0, 0, 255));
 		HBRUSH hOldBrush = (HBRUSH)::SelectObject(hDC, hBrush);
 		
-		//Ìî³ä4¸ö½Çµã
+		//å¡«å……4ä¸ªè§’ç‚¹
 		RECT rtTL, rtTR, rtBL, rtBR;
 		rtTL.left = m_rtSel.left - side/2, rtTL.right = m_rtSel.left + side/2;
 		rtTL.top = m_rtSel.top - side/2, rtTL.bottom = m_rtSel.top + side/2;
@@ -1836,7 +1836,7 @@ void CSCDialog::DrawSelRgnEdge(HDC hDC)
 		rtBR.top = m_rtSel.bottom - side/2, rtBR.bottom = m_rtSel.bottom + side/2;
 		::FillRect(hDC, &rtBR, hBrush);
 		
-		//Ìî³ä4¸ö±ßµã
+		//å¡«å……4ä¸ªè¾¹ç‚¹
 		RECT rtL, rtR, rtT, rtB;
 		rtL.left = m_rtSel.left - side/2, rtL.right = m_rtSel.left + side/2;
 		rtL.top = (m_rtSel.top+m_rtSel.bottom)/2 - side/2, rtL.bottom = (m_rtSel.top+m_rtSel.bottom)/2 + side/2;
@@ -1872,12 +1872,12 @@ void CSCDialog::DrawTip(HDC hDC)
 	POINT ptCursor;
 	::GetCursorPos(&ptCursor);
 
-	//Ìî³äÌáÊ¾¿òµÄ·Å´óÇøÓò
+	//å¡«å……æç¤ºæ¡†çš„æ”¾å¤§åŒºåŸŸ
 	RECT rtTipExt;
 	rtTipExt.left = m_rtTip.left, rtTipExt.right = m_rtTip.right;
 	rtTipExt.top = m_rtTip.top, rtTipExt.bottom = (m_rtTip.top + m_rtTip.bottom)/2;
 
-	//ÒÔµ±Ç°Êó±êµãÎªÖĞĞÄ£¬È¡³ö32*48µÄ¾ØĞÎÇøÓòµ½·Å´óÇøÓòÏÔÊ¾
+	//ä»¥å½“å‰é¼ æ ‡ç‚¹ä¸ºä¸­å¿ƒï¼Œå–å‡º32*48çš„çŸ©å½¢åŒºåŸŸåˆ°æ”¾å¤§åŒºåŸŸæ˜¾ç¤º
 	RECT rtCap;
 	rtCap.left = ptCursor.x - 12, rtCap.right = ptCursor.x + 12;
 	rtCap.top = ptCursor.y - 8, rtCap.bottom = ptCursor.y + 8;
@@ -1885,7 +1885,7 @@ void CSCDialog::DrawTip(HDC hDC)
 	HDC hMemDC = ::CreateCompatibleDC(hDC);
 	HBITMAP hOldBitmap = (HBITMAP)::SelectObject(hMemDC, m_hBitmap);
 
-	//»ñÈ¡µ±Ç°µãµÄ¼´Ê±ÑÕÉ«
+	//è·å–å½“å‰ç‚¹çš„å³æ—¶é¢œè‰²
 	COLORREF insColor = ::GetPixel(hMemDC, ptCursor.x, ptCursor.y);
 
 	::StretchBlt(hDC, rtTipExt.left, rtTipExt.top, rtTipExt.right - rtTipExt.left, rtTipExt.bottom - rtTipExt.top, hMemDC,
@@ -1894,7 +1894,7 @@ void CSCDialog::DrawTip(HDC hDC)
 	::SelectObject(hMemDC, hOldBitmap);
 	::DeleteDC(hMemDC);
 
-	//»æÖÆ·Å´óÇøÓòµÄÊ®×Ö
+	//ç»˜åˆ¶æ”¾å¤§åŒºåŸŸçš„åå­—
 	HPEN hPen = ::CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
 	HPEN hOldPen = (HPEN)::SelectObject(hDC, hPen);
 
@@ -1906,7 +1906,7 @@ void CSCDialog::DrawTip(HDC hDC)
 	::SelectObject(hDC, hOldPen);
 	::DeleteObject(hPen);
 
- 	//»æÖÆÌáÊ¾ÎÄ×Ö	
+ 	//ç»˜åˆ¶æç¤ºæ–‡å­—	
 	RECT rtText;
 	rtText.left = m_rtTip.left, rtText.right = m_rtTip.right;
 	rtText.top = (m_rtTip.top + m_rtTip.bottom)/2, rtText.bottom = m_rtTip.bottom; 	
@@ -1919,7 +1919,7 @@ void CSCDialog::DrawTip(HDC hDC)
  	::SelectObject(hDC, hOldBrush);
  	::DeleteObject(hBrush);
 	
-	//×ÖÌå¸ß¶È
+	//å­—ä½“é«˜åº¦
 	const int heightFont = 12;
 
 	int nOldBkMode = ::SetBkMode(hDC, TRANSPARENT);
@@ -1928,10 +1928,10 @@ void CSCDialog::DrawTip(HDC hDC)
 	HFONT hOldFont = (HFONT)::SelectObject(hDC, hFont);
 
 	char strSize[64] = {0}, strColor[64] = {0}, strTip1[64] = {0}, strTip2[64] = {0};
-	sprintf(strSize, "%d¡Á%d", m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top);
+	sprintf(strSize, "%dÃ—%d", m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top);
 	sprintf(strColor, "RGB:(%d,%d,%d)", GetRValue(insColor), GetGValue(insColor), GetBValue(insColor));
-	sprintf(strTip1, "Ë«»÷¿ìËÙÍê³É½ØÍ¼");
-	sprintf(strTip2, "µãÓÒ¼ü»ò°´ESCÍË³ö");
+	sprintf(strTip1, "åŒå‡»å¿«é€Ÿå®Œæˆæˆªå›¾");
+	sprintf(strTip2, "ç‚¹å³é”®æˆ–æŒ‰ESCé€€å‡º");
 
 	const int nGap = 3, nSep = 9;
 	RECT rtSize, rtColor, rtTip1, rtTip2;
@@ -1958,7 +1958,7 @@ void CSCDialog::DrawTip(HDC hDC)
 	::SetTextColor(hDC, oldTextColor);
 	::SetBkMode(hDC, nOldBkMode);
 
-	//»æÖÆÌáÊ¾¿òµÄ±ß¿ò
+	//ç»˜åˆ¶æç¤ºæ¡†çš„è¾¹æ¡†
 	::MoveToEx(hDC, m_rtTip.left, m_rtTip.top, NULL), ::LineTo(hDC, m_rtTip.left, m_rtTip.bottom);
 	::LineTo(hDC, m_rtTip.right, m_rtTip.bottom), ::LineTo(hDC, m_rtTip.right, m_rtTip.top);
 	::LineTo(hDC, m_rtTip.left, m_rtTip.top);
@@ -1967,50 +1967,50 @@ void CSCDialog::DrawTip(HDC hDC)
 void CSCDialog::UpdateCaptureState()
 {
 	SHORT keyState = ::GetKeyState(VK_LBUTTON);
-	if(keyState & 0X8000) //Êó±ê×ó¼ü±»°´ÏÂ
+	if(keyState & 0X8000) //é¼ æ ‡å·¦é”®è¢«æŒ‰ä¸‹
 	{
 		if(m_CursorPos == CP_OUTSIDE)
 		{
-			 //Êó±êÔÚ²Ã¼ô±ß½çÒÔÍâ
+			 //é¼ æ ‡åœ¨è£å‰ªè¾¹ç•Œä»¥å¤–
 			m_CaptureState = CS_NORMAL;
 		}
 		else if(m_CursorPos == CP_INSIDE)
 		{
-			 //Êó±êÔÚ²Ã¼ô±ß½çÒÔÄÚ
+			 //é¼ æ ‡åœ¨è£å‰ªè¾¹ç•Œä»¥å†…
 			m_CaptureState = CS_MOVE;
 		}
 		else
 		{
-			//Êó±êÔÚ²Ã¼ô±ßÉÏ
-			if(m_CursorPos == CP_SIDE_UP) //ÉÏ±ß
+			//é¼ æ ‡åœ¨è£å‰ªè¾¹ä¸Š
+			if(m_CursorPos == CP_SIDE_UP) //ä¸Šè¾¹
 			{
 				m_CaptureState = CS_SIZE_UP;
 			}
-			else if(m_CursorPos == CP_SIDE_DOWN) //ÏÂ±ß
+			else if(m_CursorPos == CP_SIDE_DOWN) //ä¸‹è¾¹
 			{
 				m_CaptureState = CS_SIZE_DOWN;
 			}
-			else if(m_CursorPos == CP_SIDE_LEFT) //×ó±ß
+			else if(m_CursorPos == CP_SIDE_LEFT) //å·¦è¾¹
 			{
 				m_CaptureState = CS_SIZE_LEFT;
 			}
-			else if(m_CursorPos == CP_SIDE_RIGHT) //ÓÒ±ß
+			else if(m_CursorPos == CP_SIDE_RIGHT) //å³è¾¹
 			{
 				m_CaptureState = CS_SIZE_RIGHT;
 			}	
-			else if(m_CursorPos == CP_CORNER_UPLEFT) //×óÉÏ½Ç
+			else if(m_CursorPos == CP_CORNER_UPLEFT) //å·¦ä¸Šè§’
 			{
 				m_CaptureState = CS_SIZE_UPLEFT;
 			}
-			else if(m_CursorPos == CP_CORNER_DOWNLEFT) //×óÏÂ½Ç
+			else if(m_CursorPos == CP_CORNER_DOWNLEFT) //å·¦ä¸‹è§’
 			{
 				m_CaptureState = CS_SIZE_DOWNLEFT;
 			}
-			else if(m_CursorPos == CP_CORNER_UPRIGHT) //ÓÒÉÏ½Ç
+			else if(m_CursorPos == CP_CORNER_UPRIGHT) //å³ä¸Šè§’
 			{
 				m_CaptureState = CS_SIZE_UPRIGHT;
 			}
-			else if(m_CursorPos == CP_CORNER_DOWNRIGHT) //ÓÒÏÂ½Ç
+			else if(m_CursorPos == CP_CORNER_DOWNRIGHT) //å³ä¸‹è§’
 			{
 				m_CaptureState = CS_SIZE_DOWNRIGHT;
 			}					
@@ -2032,7 +2032,7 @@ void CSCDialog::UpdateCursor()
 	else
 	{
 		SHORT keyState = ::GetKeyState(VK_LBUTTON);
-		if(keyState & 0X8000) //Êó±ê×ó¼ü±»°´ÏÂ
+		if(keyState & 0X8000) //é¼ æ ‡å·¦é”®è¢«æŒ‰ä¸‹
 		{
 			switch(m_CaptureState)
 			{
@@ -2125,55 +2125,55 @@ void CSCDialog::UpdateCursor()
 
 void CSCDialog::UpdateCursorPos(POINT point)
 {
-	const int gap = 5; //²Ã¼ô±ß½ç·¶Î§£¬ÄÚ±ß¾àºÍÍâ±ß¾à¸÷Îª5
+	const int gap = 5; //è£å‰ªè¾¹ç•ŒèŒƒå›´ï¼Œå†…è¾¹è·å’Œå¤–è¾¹è·å„ä¸º5
 	if(point.x < m_rtSel.left-gap ||point.x > m_rtSel.right+gap 
 		|| point.y < m_rtSel.top-gap || point.y > m_rtSel.bottom + gap)
 	{
-		//Êó±êÔÚ²Ã¼ô±ß½çÒÔÍâ
+		//é¼ æ ‡åœ¨è£å‰ªè¾¹ç•Œä»¥å¤–
 		m_CursorPos = CP_OUTSIDE;
 	}
 	else if(point.x > m_rtSel.left+gap && point.x< m_rtSel.right-gap 
 		&& point.y > m_rtSel.top+gap && point.y < m_rtSel.bottom-gap)
 	{
-		//Êó±êÔÚ²Ã¼ô±ß½çÒÔÄÚ
+		//é¼ æ ‡åœ¨è£å‰ªè¾¹ç•Œä»¥å†…
 		m_CursorPos = CP_INSIDE;
 	}
 	else
 	{
-		//Êó±êÔÚ²Ã¼ô±ßÉÏ
+		//é¼ æ ‡åœ¨è£å‰ªè¾¹ä¸Š
 		if((point.x >= m_rtSel.left-gap && point.x <= m_rtSel.left+gap) 
-			&& (point.y >= m_rtSel.top-gap && point.y <= m_rtSel.top+gap)) //×óÉÏ½Ç
+			&& (point.y >= m_rtSel.top-gap && point.y <= m_rtSel.top+gap)) //å·¦ä¸Šè§’
 		{
 			m_CursorPos = CP_CORNER_UPLEFT;
 		}
 		else if((point.x >= m_rtSel.left-gap && point.x <= m_rtSel.left+gap) 
-			&& (point.y >= m_rtSel.bottom-gap && point.y <= m_rtSel.bottom+gap)) //×óÏÂ½Ç
+			&& (point.y >= m_rtSel.bottom-gap && point.y <= m_rtSel.bottom+gap)) //å·¦ä¸‹è§’
 		{
 			m_CursorPos = CP_CORNER_DOWNLEFT;
 		}
 		else if((point.x >= m_rtSel.right-gap && point.x <= m_rtSel.right+gap)
-			&& (point.y >= m_rtSel.top-gap && point.y <= m_rtSel.top+gap)) //ÓÒÉÏ½Ç
+			&& (point.y >= m_rtSel.top-gap && point.y <= m_rtSel.top+gap)) //å³ä¸Šè§’
 		{
 			m_CursorPos = CP_CORNER_UPRIGHT;
 		}
 		else if((point.x >= m_rtSel.right-gap && point.x <= m_rtSel.right+gap)
-			&& (point.y >= m_rtSel.bottom-gap && point.y <= m_rtSel.bottom+gap)) //ÓÒÏÂ½Ç
+			&& (point.y >= m_rtSel.bottom-gap && point.y <= m_rtSel.bottom+gap)) //å³ä¸‹è§’
 		{
 			m_CursorPos = CP_CORNER_DOWNRIGHT;
 		}	
-		else if(point.y >= m_rtSel.top-gap && point.y <= m_rtSel.top+gap) //ÉÏ±ß
+		else if(point.y >= m_rtSel.top-gap && point.y <= m_rtSel.top+gap) //ä¸Šè¾¹
 		{
 			m_CursorPos = CP_SIDE_UP;
 		}
-		else if(point.y >= m_rtSel.bottom-gap && point.y <= m_rtSel.bottom+gap) //ÏÂ±ß
+		else if(point.y >= m_rtSel.bottom-gap && point.y <= m_rtSel.bottom+gap) //ä¸‹è¾¹
 		{
 			m_CursorPos = CP_SIDE_DOWN;
 		}
-		else if(point.x >= m_rtSel.left-gap && point.x <= m_rtSel.left+gap) //×ó±ß
+		else if(point.x >= m_rtSel.left-gap && point.x <= m_rtSel.left+gap) //å·¦è¾¹
 		{
 			m_CursorPos = CP_SIDE_LEFT;
 		}
-		else if(point.x >= m_rtSel.right-gap && point.x <= m_rtSel.right+gap) //ÓÒ±ß
+		else if(point.x >= m_rtSel.right-gap && point.x <= m_rtSel.right+gap) //å³è¾¹
 		{
 			m_CursorPos = CP_SIDE_RIGHT;
 		}			
@@ -2231,7 +2231,7 @@ HBITMAP CSCDialog::GetGrayBitmap(HBITMAP hBitmap, COLORREF colorGray, double alp
 	::BitBlt(hMemDC2, 0, 0, bitmapInfo.bmWidth, bitmapInfo.bmHeight, hMemDC1, 0, 0, SRCCOPY);
 
 	/**********************************************************************/
-	//Ö±½Ó¶ÔÄÚ´æÊı¾İ½øĞĞ´¦Àí±ÈGetPixel¡¢SetPixelĞ§ÂÊ¸ß
+	//ç›´æ¥å¯¹å†…å­˜æ•°æ®è¿›è¡Œå¤„ç†æ¯”GetPixelã€SetPixelæ•ˆç‡é«˜
 	BITMAPINFO BmpInfo;
 	ZeroMemory(&BmpInfo, sizeof(BmpInfo));
 	BmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -2387,18 +2387,18 @@ void CSCDialog::BackEditBmp()
 
 void CSCDialog::SaveAsCaptureBmp()
 {
-	char filename[MAX_PATH] = "Î´ÃüÃû.bmp"; //´ò¿ªÎÄ¼ş¶Ô»°¿òÓÃ»§ËùÑ¡ÎÄ¼şµÄÎÄ¼şÃû
-	LPCTSTR filter = "BMP (*.bmp)\0*.bmp\0JPG (*jpg;*.jpeg)\0*.jpg;*.jpeg\0PNG (*.png)\0*.png\0\0"; //´ò¿ªÎÄ¼ş¶Ô»°¿òÂË¾µ
+	char filename[MAX_PATH] = "æœªå‘½å.bmp"; //æ‰“å¼€æ–‡ä»¶å¯¹è¯æ¡†ç”¨æˆ·æ‰€é€‰æ–‡ä»¶çš„æ–‡ä»¶å
+	LPCTSTR filter = "BMP (*.bmp)\0*.bmp\0JPG (*jpg;*.jpeg)\0*.jpg;*.jpeg\0PNG (*.png)\0*.png\0\0"; //æ‰“å¼€æ–‡ä»¶å¯¹è¯æ¡†æ»¤é•œ
 	OPENFILENAME save_file;
 	memset(&save_file, 0, sizeof(OPENFILENAME));
 	save_file.lStructSize = sizeof(OPENFILENAME);
 	save_file.hwndOwner = m_hDlg;
-	save_file.lpstrFile = filename; //´ò¿ªÎÄ¼ş¶Ô»°¿òÖĞ·µ»ØµÄÎÄ¼şÈ«Ãû
+	save_file.lpstrFile = filename; //æ‰“å¼€æ–‡ä»¶å¯¹è¯æ¡†ä¸­è¿”å›çš„æ–‡ä»¶å…¨å
 	save_file.nMaxFile = MAX_PATH;	
 	save_file.lpstrFilter = filter;
 	save_file.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLEHOOK | OFN_ENABLESIZING;
 	save_file.lpfnHook = OFNHookProc;
-	int id = ::GetSaveFileName(&save_file); //µ¯³ö´ò¿ªÎÄ¼ş¶Ô»°¿ò£¬²¢·µ»ØÑ¡ÔñµÄÎÄ¼şÈ«Ãû
+	int id = ::GetSaveFileName(&save_file); //å¼¹å‡ºæ‰“å¼€æ–‡ä»¶å¯¹è¯æ¡†ï¼Œå¹¶è¿”å›é€‰æ‹©çš„æ–‡ä»¶å…¨å
 	if(id == IDOK)
 	{
 		IMAGE_FORMAT image_format = IF_BMP;
@@ -2479,7 +2479,7 @@ void CSCDialog::EnsureScreenCapture()
 
 	if(bRet)
 	{
-		//Í¼Æ¬ÀàĞÍ×ª»»bmp->jpg
+		//å›¾ç‰‡ç±»å‹è½¬æ¢bmp->jpg
 		ConvertImageFomat(g_pCaptureData->filename, IF_JPG);
 
 		g_pCaptureData->capture_oper = CO_SURE;
@@ -2547,12 +2547,12 @@ BOOL CALLBACK CSCDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 	case WM_MSG_FROM_CUSTOM:
 		return g_scDialog.OnMsgFromCustom(wParam, lParam);
 	}
-	return FALSE; //¶ÔÓÚ¶Ô»°¿ò´¦Àí³ÌĞò£¬ÔÚ´¦ÀíÍêÏûÏ¢Ö®ºó£¬Ó¦¸Ã·µ»ØFALSE£¬ÈÃÏµÍ³½øÒ»²½´¦Àí
+	return FALSE; //å¯¹äºå¯¹è¯æ¡†å¤„ç†ç¨‹åºï¼Œåœ¨å¤„ç†å®Œæ¶ˆæ¯ä¹‹åï¼Œåº”è¯¥è¿”å›FALSEï¼Œè®©ç³»ç»Ÿè¿›ä¸€æ­¥å¤„ç†
 }
 
 BOOL CSCDialog::DialogOnInit(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {	
-	m_hDlg = hWnd; //°ó¶¨Ö÷¶Ô»°¿ò¾ä±ú
+	m_hDlg = hWnd; //ç»‘å®šä¸»å¯¹è¯æ¡†å¥æŸ„
 
 	InitCaptureData();	
 
@@ -2669,23 +2669,23 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hDC = ::BeginPaint(m_hDlg, &ps);	
 		
-	//»ñÈ¡ÆÁÄ»Î»Í¼µÄĞÅÏ¢
+	//è·å–å±å¹•ä½å›¾çš„ä¿¡æ¯
 	BITMAP bitmapInfo;
 	::GetObject(m_hBitmap, sizeof(BITMAP), &bitmapInfo);
 
-	//´´½¨ÆÁÄ»Ò»¼¶»º³åDC
+	//åˆ›å»ºå±å¹•ä¸€çº§ç¼“å†²DC
 	HDC hMemDC = ::CreateCompatibleDC(hDC);
 	HBITMAP hBitmap = ::CreateCompatibleBitmap(hDC, bitmapInfo.bmWidth, bitmapInfo.bmHeight);
 	HBITMAP hOldBitmap = (HBITMAP)::SelectObject(hMemDC, hBitmap);
 
-	//»æÖÆ»Ò»¯Ğ§¹û
+	//ç»˜åˆ¶ç°åŒ–æ•ˆæœ
 	HDC hMemDC1 = ::CreateCompatibleDC(hDC);
 	HBITMAP hOldBitmap1 = (HBITMAP)::SelectObject(hMemDC1, m_hGrayBitmap);	
 	::BitBlt(hMemDC, 0, 0, rtClient.right - rtClient.left, rtClient.bottom - rtClient.top, hMemDC1, 0, 0, SRCCOPY);
 	::SelectObject(hMemDC1, hOldBitmap1);
 	::DeleteDC(hMemDC1);
 	
-	//»æÖÆÑ¡ÖĞÇøÓò
+	//ç»˜åˆ¶é€‰ä¸­åŒºåŸŸ
 	HDC hMemDC2 = ::CreateCompatibleDC(hDC);
 	HBITMAP hOldBitmap2 = (HBITMAP)::SelectObject(hMemDC2, m_hBitmap);
 
@@ -2695,7 +2695,7 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 	::SelectObject(hMemDC2, hOldBitmap2);
 	DeleteDC(hMemDC2);
 
-	//Í¿Ñ»»æÖÆ
+	//æ¶‚é¸¦ç»˜åˆ¶
 	if(m_ToolDlg.m_bEdit)
 	{
 		HDC hMemDC3 = ::CreateCompatibleDC(hDC);	
@@ -2715,7 +2715,7 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 			HBITMAP hTempBitmap = CopyBitmap(m_hCurScrawlBimtap);
 			HBITMAP hOldBitmap3 = (HBITMAP)::SelectObject(hMemDC3, hTempBitmap);
 			
-			//Í¿Ñ»»æÖÆ
+			//æ¶‚é¸¦ç»˜åˆ¶
 			DrawScrawl(hMemDC3, hTempBitmap);
 			
 			::BitBlt(hMemDC, m_rtSel.left, m_rtSel.top, m_rtSel.right - m_rtSel.left, m_rtSel.bottom - m_rtSel.top,
@@ -2736,10 +2736,10 @@ BOOL CSCDialog::DialogOnPaint(WPARAM wParam, LPARAM lParam)
 		::DeleteDC(hMemDC3);		
 	}
 	
-	//»æÖÆÑ¡ÖĞÇøÓòµÄ±ß½ç
+	//ç»˜åˆ¶é€‰ä¸­åŒºåŸŸçš„è¾¹ç•Œ
 	DrawSelRgnEdge(hMemDC);
 
-	//»æÖÆÌáÊ¾
+	//ç»˜åˆ¶æç¤º
 	DrawTip(hMemDC);
 
 	::BitBlt(hDC, 0, 0, rtClient.right - rtClient.left, rtClient.bottom - rtClient.top, hMemDC, 0, 0, SRCCOPY);
@@ -2813,8 +2813,8 @@ BOOL CSCDialog::DialogOnLButtonDown(WPARAM wParam, LPARAM lParam)
 			
 			if(m_CursorPos != CP_OUTSIDE)
 			{
-				m_ptStart.x = point.x, m_ptStart.y = point.y; //¼ÇÂ¼Êó±ê¿ªÊ¼°´ÏÂµÄÎ»ÖÃ
-				memcpy(&m_rtCutStart, &m_rtSel, sizeof(RECT)); //¼ÇÂ¼Êó±ê°´ÏÂÊ±µÄ²Ã¼ôÇøÓò
+				m_ptStart.x = point.x, m_ptStart.y = point.y; //è®°å½•é¼ æ ‡å¼€å§‹æŒ‰ä¸‹çš„ä½ç½®
+				memcpy(&m_rtCutStart, &m_rtSel, sizeof(RECT)); //è®°å½•é¼ æ ‡æŒ‰ä¸‹æ—¶çš„è£å‰ªåŒºåŸŸ
 			}	
 		}	
 	}	
@@ -2877,7 +2877,7 @@ BOOL CSCDialog::DialogOnLButtonUp(WPARAM wParam, LPARAM lParam)
 		point.x = xPos, point.y = yPos;
 		if(m_CaptureState != CS_NORMAL)
 		{								
-			m_ptEnd.x = point.x, m_ptEnd.y = point.y; //¼ÇÂ¼Êó±ê¿ªÊ¼Ì§ÆğµÄÎ»ÖÃ
+			m_ptEnd.x = point.x, m_ptEnd.y = point.y; //è®°å½•é¼ æ ‡å¼€å§‹æŠ¬èµ·çš„ä½ç½®
 		}
 		
 		UpdateCursorPos(point);
@@ -3037,7 +3037,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 				{											
 					if(m_CaptureState == CS_SIZE_UP)
 					{								
-						//×ö²Ã¼ô¾ØĞÎ±ß½çµ÷Õû
+						//åšè£å‰ªçŸ©å½¢è¾¹ç•Œè°ƒæ•´
 						rtTemp.top = m_rtCutStart.top + yOffset;
 						if(rtTemp.top < m_rtScreenShow.top)
 						{
@@ -3056,7 +3056,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 					}
 					else if(m_CaptureState == CS_SIZE_DOWN)
 					{		
-						//×ö²Ã¼ô¾ØĞÎ±ß½çµ÷Õû
+						//åšè£å‰ªçŸ©å½¢è¾¹ç•Œè°ƒæ•´
 						rtTemp.bottom = m_rtCutStart.bottom + yOffset;
 						if(rtTemp.bottom > m_rtScreenShow.bottom)
 						{
@@ -3075,7 +3075,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 					}
 					else if(m_CaptureState == CS_SIZE_LEFT)
 					{			
-						//×ö²Ã¼ô¾ØĞÎ±ß½çµ÷Õû
+						//åšè£å‰ªçŸ©å½¢è¾¹ç•Œè°ƒæ•´
 						rtTemp.left = m_rtCutStart.left + xOffset;
 						if(rtTemp.left < m_rtScreenShow.left)
 						{
@@ -3094,7 +3094,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 					}
 					else if(m_CaptureState == CS_SIZE_RIGHT)
 					{		
-						//×ö²Ã¼ô¾ØĞÎ±ß½çµ÷Õû
+						//åšè£å‰ªçŸ©å½¢è¾¹ç•Œè°ƒæ•´
 						rtTemp.right = m_rtCutStart.right + xOffset;
 						if(rtTemp.right > m_rtScreenShow.right)
 						{
@@ -3224,7 +3224,7 @@ BOOL CSCDialog::DialogOnMouseMove(WPARAM wParam, LPARAM lParam)
 						}					
 					}			
 					
-					//×ö²Ã¼ô¾ØĞÎ·½Ïòµ÷Õû
+					//åšè£å‰ªçŸ©å½¢æ–¹å‘è°ƒæ•´
 					if(rtTemp.right < rtTemp.left)
 					{
 						int t = rtTemp.right;
