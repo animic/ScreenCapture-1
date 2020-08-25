@@ -1,0 +1,5 @@
+/src/ScreenCapture/Debug
+/src/ScreenCapture/Release
+/src/ScreenCapture/*.user
+/*.suo
+/*.ncb
